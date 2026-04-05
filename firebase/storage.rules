@@ -1,0 +1,48 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function hasAnyRole(roles) {
+      return isAuthenticated() && request.auth.token.role in roles;
+    }
+
+    function canWriteLibrary() {
+      return hasAnyRole(['admin', 'manager', 'librarian']);
+    }
+
+    function canWriteAds() {
+      return hasAnyRole(['admin', 'manager', 'traffic']);
+    }
+
+    // Track audio and artwork
+    match /tracks/{trackId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if canWriteLibrary()
+        && request.resource.size < 50 * 1024 * 1024; // 50MB max
+    }
+
+    // Ad spot audio
+    match /ads/{campaignId}/{spotId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if canWriteAds()
+        && request.resource.size < 20 * 1024 * 1024; // 20MB max
+    }
+
+    // Temp uploads
+    match /temp-uploads/{uid}/{allPaths=**} {
+      allow read: if isAuthenticated() && request.auth.uid == uid;
+      allow write: if isAuthenticated() && request.auth.uid == uid
+        && request.resource.size < 50 * 1024 * 1024;
+    }
+
+    // Deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

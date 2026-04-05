@@ -1,0 +1,124 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserRole() {
+      return request.auth.token.role;
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && getUserRole() == role;
+    }
+
+    function hasAnyRole(roles) {
+      return isAuthenticated() && getUserRole() in roles;
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    function isManagerOrAbove() {
+      return hasAnyRole(['admin', 'manager']);
+    }
+
+    function canWriteLibrary() {
+      return hasAnyRole(['admin', 'manager', 'librarian']);
+    }
+
+    function canWriteAds() {
+      return hasAnyRole(['admin', 'manager', 'traffic']);
+    }
+
+    function canWriteSchedule() {
+      return hasAnyRole(['admin', 'manager', 'traffic']);
+    }
+
+    // Users collection
+    match /users/{uid} {
+      allow read: if isAuthenticated() && (request.auth.uid == uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // Stations collection
+    match /stations/{stationId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Artists collection
+    match /artists/{artistId} {
+      allow read: if isAuthenticated();
+      allow create, update: if canWriteLibrary();
+      allow delete: if isManagerOrAbove();
+    }
+
+    // Albums collection
+    match /albums/{albumId} {
+      allow read: if isAuthenticated();
+      allow create, update: if canWriteLibrary();
+      allow delete: if isManagerOrAbove();
+    }
+
+    // Tracks collection
+    match /tracks/{trackId} {
+      allow read: if isAuthenticated();
+      allow create, update: if canWriteLibrary();
+      allow delete: if isManagerOrAbove();
+    }
+
+    // Advertisers collection
+    match /advertisers/{advertiserId} {
+      allow read: if isAuthenticated();
+      allow create, update: if canWriteAds();
+      allow delete: if isManagerOrAbove();
+    }
+
+    // Campaigns collection
+    match /campaigns/{campaignId} {
+      allow read: if isAuthenticated();
+      allow create, update: if canWriteAds();
+      allow delete: if isManagerOrAbove();
+
+      // Spots subcollection
+      match /spots/{spotId} {
+        allow read: if isAuthenticated();
+        allow create, update: if canWriteAds();
+        allow delete: if isManagerOrAbove();
+      }
+    }
+
+    // Clock templates collection
+    match /clockTemplates/{templateId} {
+      allow read: if isAuthenticated();
+      allow create, update: if canWriteSchedule();
+      allow delete: if isManagerOrAbove();
+    }
+
+    // Rundowns collection
+    match /rundowns/{date} {
+      allow read: if isAuthenticated();
+      allow create, update: if canWriteSchedule()
+        && (resource == null || resource.data.status != 'locked' || isManagerOrAbove());
+      allow delete: if isManagerOrAbove();
+    }
+
+    // Play logs collection
+    match /playLogs/{date}/items/{playId} {
+      allow read: if isAuthenticated();
+      allow create: if hasAnyRole(['admin', 'manager', 'operator']);
+      allow update, delete: if isManagerOrAbove();
+    }
+
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
