@@ -4,6 +4,8 @@
 
 **Last updated:** 2026-05-13 (end of Phase 1).
 
+> **Platform note (2026-05-16, Wave RM):** this brief predates the platform migration. The app has since **migrated off Cloudflare Pages Functions + D1 onto Railway** — Next.js 16 App Router (`output: "standalone"`) deployed via Docker (`node:22-alpine`, `node server.js`; see `railway.json` / `Dockerfile`), with **PostgreSQL via Drizzle ORM** (`src/db/`, applied with `npm run db:migrate`) and **S3-compatible storage** (Cloudflare R2 endpoint, via `@aws-sdk/client-s3`). Auth is `jose` HS256 session JWTs (`AUTH_JWT_SECRET`, fail-closed in production). The decisions, file paths, and commands below (e.g. "Cloudflare Pages Functions + D1 + R2", `functions/api/...`, `wrangler d1 execute`) describe the *original* plan as locked at end of Phase 1, not the current runtime — the Phase 2 work landed against the migrated stack. Legacy Cloudflare/Firebase files (`functions/`, `wrangler.toml`, `firebase.json`, top-level `migrations/`) still linger in the tree but are no longer how the app runs. See `docs/RAILWAY-MIGRATION-PLAN.md` and the `ROADMAP.md` status overview for the current architecture.
+
 ---
 
 ## 1. State of the codebase (verified at end of Phase 1)

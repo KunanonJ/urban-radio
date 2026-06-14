@@ -19,8 +19,8 @@ The cleanest option. Preserves the GitHub repo's history; you commit
 ```bash
 # 1. Clone the actual repo somewhere outside this folder.
 cd ~/Developer
-git clone https://github.com/KunanonJ/radio-development.git radio-development
-cd radio-development
+git clone https://github.com/KunanonJ/urban-radio.git urban-radio
+cd urban-radio
 
 # 2. Confirm what branch you're on.
 git status
@@ -90,7 +90,7 @@ cd ~/Developer/radio-development-main
 
 # Init + connect.
 git init
-git remote add origin https://github.com/KunanonJ/radio-development.git
+git remote add origin https://github.com/KunanonJ/urban-radio.git
 git branch -M main
 
 # Stage + commit (single big commit; squash later if desired).
@@ -153,7 +153,7 @@ To wire up the **Railway GitHub integration**:
 1. Railway dashboard → Project `sonic-bloom` → service `sonic-bloom-web`
 2. Settings → Source → "Connect Repo"
 3. Authorize Railway to read your GitHub repos
-4. Pick `KunanonJ/radio-development` → branch `main`
+4. Pick `KunanonJ/urban-radio` → branch `main`
 5. Click Connect. Railway auto-deploys on every push to main.
 
 If you switch to the integration, disable the token workflow:
@@ -186,12 +186,13 @@ After your first push to main:
 
 ```bash
 gh run list --workflow=ci.yml --limit 1
-# or visit: https://github.com/KunanonJ/radio-development/actions
+# or visit: https://github.com/KunanonJ/urban-radio/actions
 ```
 
 Expected outcome on a healthy push:
-- `verify` job — lint + unit tests (450+) + migrations tests (29) + Playwright E2E + build — typically 5-10 min
-- `deploy-railway` job — skipped unless `RAILWAY_DEPLOY_VIA_TOKEN` is `true`
+- `verify` job (the gate) — npm audit + typecheck + Drizzle migrate + lint + node-project unit tests (~1210) + migrations tests (29) + Playwright E2E + build — typically 5-10 min
+- `ui-tests` job — runs the JSDOM (`npm run test:ui`) project; `continue-on-error: true`, so a known component-suite heap OOM does **not** red the pipeline
+- `deploy-railway` is a **separate** workflow (`deploy-railway.yml`), not a job in `ci.yml`; it's skipped unless `RAILWAY_DEPLOY_VIA_TOKEN` is `true`
 
 If `verify` fails:
 - `npm run lint` errors → fix locally + push again

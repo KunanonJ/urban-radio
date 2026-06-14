@@ -22,8 +22,8 @@ Other event types still get `200 {ignored: true}` (Stripe stops retrying), but n
 
 ### What it does NOT do yet
 - **No `organizations.plan` mutation.** This is the next-feature ticket. The audit log records the event for later reconciliation; the plan column itself is never written from the webhook. If you change plans today, you must update `organizations.plan` directly via SQL or the Settings UI.
-- **No customer-to-org linking is enforced.** The webhook reads org id from the payload as documented below; if the payload doesn't carry it, the audit row records `stationId: 'unknown'`.
-- **No retries-of-our-own.** If the audit_log write FK-fails (e.g. unknown org id), it is silently swallowed — the event itself is still marked processed in the dedup table so Stripe doesn't retry. This is intentional but means you'll need to backfill manually if it happens.
+- **No customer-to-org linking is enforced.** The webhook reads org id from the payload as documented below, then resolves it to the org's earliest-created station (`audit_log.station_id` is a FK to `stations.id`). If the payload carries no org id, or the org has no station, the audit write is skipped and the handler logs `audit skipped (no station for org)` — the event is still 200'd and recorded in the dedup table.
+- **No retries-of-our-own.** When the audit write is skipped (or `writeAuditLog` swallows an unexpected error), the event is still marked processed in the dedup table so Stripe doesn't retry. This is intentional but means you'll need to backfill manually from `processed_stripe_events` if it happens.
 
 ---
 
@@ -34,7 +34,7 @@ The handler extracts `orgId` from the event payload in this order:
 1. **`data.object.client_reference_id`** — used by Stripe Checkout. Set this to your `organizations.id` when creating the Checkout Session.
 2. **`data.object.metadata.org_id`** — used by everything else (subscription update, invoice paid, etc.). Set `metadata: { org_id: "<your-org-id>" }` on the underlying object (Customer, Subscription, or Invoice line).
 
-If neither is present, the audit row gets `stationId: 'unknown'` and `targetId: <event.id>`. The webhook still returns 200 — the event isn't lost, you just can't tie it back to an org later without manual reconciliation.
+If neither is present (or the resolved org has no station), the audit write is skipped entirely and the handler logs `audit skipped (no station for org)`. The webhook still returns 200 — the event isn't lost (it's recorded in `processed_stripe_events`), you just can't tie it back to an org later without manual reconciliation. When an org **is** resolved, the audit row's `target_id` is the org id (falling back to the `event.id` only if the org id is somehow absent).
 
 **Example Checkout Session payload:**
 ```json
@@ -149,12 +149,14 @@ After a successful event, query the audit log:
 ```sql
 SELECT id, action, target_id, after_json, at
 FROM audit_log
-WHERE actor_user_id = 'stripe'
+WHERE actor_user_id IS NULL AND action LIKE 'stripe_%'
 ORDER BY at DESC
 LIMIT 20;
 ```
 
-Each row's `after_json` carries `{ "eventId": "evt_...", "type": "..." }`. Cross-reference `eventId` against `processed_stripe_events` to confirm dedup is working:
+(Stripe isn't an `auth_users` row, so the handler writes `actor_user_id = NULL` — filtering on `'stripe'` returns nothing. The `stripe_<event-type>` value lives in `action`.)
+
+Each row's `after_json` carries `{ "eventId": "evt_...", "type": "...", "orgId": "...", "source": "stripe" }`. Cross-reference `eventId` against `processed_stripe_events` to confirm dedup is working:
 
 ```sql
 SELECT * FROM processed_stripe_events ORDER BY processed_at DESC LIMIT 20;
@@ -186,7 +188,7 @@ SELECT * FROM processed_stripe_events ORDER BY processed_at DESC LIMIT 20;
 | 400 `invalid_signature` only on old events | Timestamp drift > 300s | Stripe retries with the original timestamp; if the retry is past the 5-min window, it gets rejected. Acceptable — Stripe gives up after ~3 days anyway |
 | 503 `dedup_store_unavailable` | Railway PG unreachable when handler tries to INSERT dedup row | Check Railway PG service health; the handler fail-closes to make Stripe retry |
 | 200 `{ignored: true}` for an event you care about | Event type not in `KNOWN_EVENTS` allowlist | Add to `KNOWN_EVENTS` in `src/app/api/webhooks/stripe/route-impl.ts`; redeploy |
-| Audit log row never appears | `org_id` not present in payload — the FK to `stations.id` fails because we use `orgId` as `stationId`. `writeAuditLog` swallows the error | Set `metadata.org_id` on the Stripe object OR plan to back-fill from `processed_stripe_events` later |
+| Audit log row never appears | `org_id` not present in payload, or the resolved org has no station — the handler skips the audit write (logs `audit skipped (no station for org)`) since `audit_log.station_id` must point at a real `stations.id` | Set `metadata.org_id` on the Stripe object (and ensure the org has at least one station) OR plan to back-fill from `processed_stripe_events` later |
 | Duplicate rows in audit log | Should be impossible — dedup table prevents re-processing | If this happens, dedup INSERT is failing silently. Check `processed_stripe_events` table exists + has the PK constraint |
 
 ---

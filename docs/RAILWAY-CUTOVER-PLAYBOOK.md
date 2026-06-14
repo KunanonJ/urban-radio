@@ -21,7 +21,7 @@ Before starting δ:
 - [ ] User has provided the four δ-blocking secrets (§3 of RAILWAY-KICKOFF.md):
   - `DATABASE_URL` (Railway Postgres)
   - Railway production domain
-  - R2 S3-compatible credentials (`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`)
+  - R2 S3-compatible credentials (`STORAGE_ENDPOINT_URL`, `STORAGE_BUCKET`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`; `STORAGE_REGION` optional)
   - `AUTH_JWT_SECRET` (copy of the existing Cloudflare value)
 
 If any check fails, **stop**. δ is not the wave that fixes earlier breakage.
@@ -38,7 +38,7 @@ User-driven steps; Claude provides scripts but does **not** execute them.
    - Railway service env: `DATABASE_URL` is auto-injected when the PG service is linked
 3. Apply the Drizzle migrations against the new Railway PG:
    ```bash
-   DATABASE_URL='<railway-url>' npx drizzle-kit migrate
+   DATABASE_URL='<railway-url>' npm run db:migrate
    ```
    This is **R1** by itself — the DB has no data yet. Verify by connecting and running `\dt` (expect 21 tables).
 
@@ -95,7 +95,7 @@ User-driven:
    - `Dockerfile` (Next.js standalone build)
    - `railway.json` (build + start commands)
    - All `src/app/api/**/route.ts` files
-2. In Railway, create a new web service → connect to the `radio-development` repo on the `railway` branch.
+2. In Railway, create a new web service → connect to the `urban-radio` repo on the `railway` branch.
 3. Set service env vars:
    - `DATABASE_URL` — auto-injected if PG service is linked
    - `AUTH_JWT_SECRET` — same value as the Cloudflare worker
@@ -107,7 +107,7 @@ User-driven:
 4. Deploy. Verify:
    - `https://<railway-domain>/api/healthz` returns 200
    - `https://<railway-domain>/api/healthz?probe=db` returns 200 (PG connectivity)
-   - `https://<railway-domain>/api/auth/me` returns 200 with `authNotConfigured: false`
+   - `https://<railway-domain>/api/auth/me` does not report `authNotConfigured: true` (i.e. `AUTH_JWT_SECRET` is set): 401 `{ authenticated: false }` when logged out, 200 `{ authenticated: true, user }` once logged in
 5. Do **not** flip DNS yet. The Railway service is alive but receives no production traffic.
 
 ---

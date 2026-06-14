@@ -1,8 +1,8 @@
 # Railway Migration — Option A Kickoff
 
-**Status:** Active. Strangler-fig migration in progress.
+**Status:** Codebase migrated; deploy live, runtime cutover still pending. The Railway service (`github.com/KunanonJ/urban-radio`) builds and deploys the Docker image via Railway's native GitHub integration and the `/api/healthz` liveness probe is green — but provisioning the production Postgres, setting env vars, applying migrations, seeding the admin, and any DNS flip / D1 backfill are **not yet done** (tracked in issue #14; see [RAILWAY-CUTOVER-PLAYBOOK.md](./RAILWAY-CUTOVER-PLAYBOOK.md)). This doc is the original kickoff plan, kept as a historical record; for current commands and conventions see [AGENTS.md](../AGENTS.md).
 
-**Last updated:** 2026-05-16
+**Last updated:** 2026-06-14 (code migrated + deploying; runtime cutover pending)
 
 **Workrules tier:** Plan is R2 (this doc). Each phase below is R1 minimum; production cutover is R0.
 
@@ -26,7 +26,7 @@
 | RM-γ Next 15 build fix | ✅ done | — | `scripts/split-route-handlers.mjs` ran across all 47 routes; each `route.ts` now re-exports verbs from a sibling `route-impl.ts` (Next 15 strict types reject non-verb route exports) |
 | RM-γ middleware fix | ✅ done | — | Middleware pinned to `runtime: 'nodejs'` because `jose`'s `CompressionStream` isn't Edge-supported |
 | RM-δ §2 deploy artifacts | ✅ done | +17 | `Dockerfile` (Node 22 alpine, standalone), `.dockerignore`, `railway.json`, `next.config.ts` `output: 'standalone'`, `scripts/migrate-d1-to-pg.mjs` (D1→PG one-shot sync, dry-run + apply modes, 17 unit tests), `db:sync-from-d1` npm script |
-| RM-δ §1+§3 cutover | ⏳ pending (R0) | — | User-driven: provision Railway PG, set 4 env vars, deploy Docker image, run `npm run db:sync-from-d1 -- --apply`, DNS flip. See `docs/RAILWAY-CUTOVER-PLAYBOOK.md` |
+| RM-δ §1+§3 cutover | 🟡 partial (R0) | — | The Docker image deploys via Railway's **native GitHub integration** (auto-deploys on push to `main`; `github.com/KunanonJ/urban-radio`) and the `/api/healthz` liveness probe is green. **Still pending:** provision the production Postgres, set env vars (`DATABASE_URL`, `AUTH_JWT_SECRET`, `STORAGE_*`, `STRIPE_WEBHOOK_SECRET`), apply `npm run db:migrate`, seed the admin (`scripts/seed-railway-admin.mjs`), and any DNS flip / D1 backfill (`npm run db:sync-from-d1`). Tracked in issue #14. See `docs/RAILWAY-CUTOVER-PLAYBOOK.md` |
 
 **Total tests:** 1370 baseline + 318 net new = **1688 main tests** + 29 migration. Full suite passes; one pre-existing JSDOM worker OOM crashes 6 tests in an unrelated UI-heavy file (independent of this migration).
 

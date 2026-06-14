@@ -1,5 +1,7 @@
 # Cloudflare Workers Builds (this repo)
 
+> **SUPERSEDED:** This documents the pre-migration Cloudflare Pages/Workers deploy setup. The project has since migrated to **Railway (Docker) + PostgreSQL**; production no longer deploys via Cloudflare. Retained for historical reference only. For the current deployment, see [RAILWAY-KICKOFF.md](./RAILWAY-KICKOFF.md).
+
 Use this checklist when the Git-connected build runs **build** + **deploy** on Cloudflare (not plain Pages-only upload).
 
 ## 1. Commands (dashboard)

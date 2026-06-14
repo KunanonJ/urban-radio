@@ -1,8 +1,8 @@
-# Agent guide — Sonic Bloom (sonic-bloom-main)
+# Agent guide — Sonic Bloom (deployed as urban-radio)
 
 ## Purpose
 
-Next.js 15 (App Router) + React + TypeScript: a music library and playback UI. Marketing landing at `/`; main app under `/app` with sidebar, player bar, search, and library/detail/settings routes. **Data is mock/in-memory** (`src/lib/mock-data.ts`, `src/lib/store.ts`); there is no backend or real streaming integration in this repo yet.
+Next.js 16 (App Router) + React 18 + TypeScript: a music library and playback UI. Marketing landing at `/`; main app under `/app` with sidebar, player bar, search, and library/detail/settings routes. **Backend is live**: PostgreSQL (Drizzle ORM, `src/db/`), S3-compatible object storage (Cloudflare R2 via `@aws-sdk/client-s3`), and jose JWT session auth (`src/server/auth/`). The UI also ships mock seed content (`src/lib/mock-data.ts`, `src/lib/store.ts`) used by some views and E2E specs.
 
 ## Commands
 
@@ -10,30 +10,41 @@ Next.js 15 (App Router) + React + TypeScript: a music library and playback UI. M
 |------|---------|
 | Dev server (port **3000**) | `npm run dev` |
 | Dev server for Playwright (port **3330**) | `npm run dev:e2e` |
-| Production build | `npm run build` (`next build` → `.next/`; not a Cloudflare static bundle by itself) |
+| Production build | `npm run build` (`next build`; `output: 'standalone'` → `.next/standalone/server.js`) |
 | Start (after build) | `npm run start` |
-| Lint | `npm run lint` (`next lint`) |
-| Unit tests (Vitest) | `npm test` |
+| Lint | `npm run lint` (`eslint .`) |
+| Unit tests — node project (the gate, pg-mem) | `npm test` (`vitest run --project=node`) |
+| UI tests — jsdom project (best-effort, OOMs) | `npm run test:ui` (`vitest run --project=jsdom`) |
+| Migration tests | `npm run test:migrations` |
 | Watch tests | `npm run test:watch` |
-| E2E (Playwright) | `npm run test:e2e` (config: `playwright.config.ts`; plan: `docs/TEST-PLAN.md`) |
-| Firebase emulators (Auth, Firestore, Storage, UI) | `npm run emulators:start` (requires `firebase-tools` / `npx`) |
-| Cloudflare Workers Builds (deploy checklist) | `docs/CLOUDFLARE_WORKERS_BUILDS.md` |
-| Firebase migration proposal | **Rejected** 2026-05-13 — archived in `docs/rejected/`. See `docs/rejected/README.md` for rationale. |
-| List Pages projects (after `wrangler login`) | `npm run cf:pages:list` |
-| Deploy with optional slug override | Set **`CF_PAGES_PROJECT_NAME`** in CI, then `npm run deploy` (see `scripts/pages-deploy.mjs`) |
-| Manual Pages deploy (GitHub) | Actions → **Deploy Cloudflare Pages** — needs secret **`CLOUDFLARE_API_TOKEN`**; see `docs/CLOUDFLARE_WORKERS_BUILDS.md` §6 |
-| Cloudflare build still `[10000]` after GitHub secret | GitHub and Cloudflare use **separate** tokens — set the same Pages-capable token in **Cloudflare project Variables** too; see **`docs/CLOUDFLARE_WORKERS_BUILDS.md` §7** |
-| **Build token deleted or rolled** (Workers Builds) | Update **Build token** in **Worker Builds** settings in the dashboard; see **`docs/CLOUDFLARE_WORKERS_BUILDS.md`** troubleshooting table. |
-| Full verify (lint + unit + E2E + build) | `npm run verify` |
-| Cloudflare Pages local | `pages:dev` exits with a hint — use **`npm run dev`** for Next; Wrangler needs a static `out/` or `dist/` folder. |
-| Cloudflare Pages deploy | `npm run pages:deploy` (requires `wrangler login`; uploads **`out/`** if present, else **`dist/`**) |
-| Upload static output | `npm run pages:upload` or `npm run deploy` |
-| Firebase rules (Firestore indexes + rules) | `npm run deploy:firebase` (or `npx firebase deploy --only firestore:rules,firestore:indexes`) |
-| Firebase Storage rules | `npm run deploy:firebase:storage` after Storage is enabled in console |
+| E2E (Playwright) | `npm run test:e2e` (config: `playwright.config.ts`; needs `DATABASE_URL`; webServer runs `next dev`; plan: `docs/TEST-PLAN.md`) |
+| Full verify (lint + node unit + migrations + E2E + build) | `npm run verify` |
+| Local dev Postgres up / down | `npm run db:up` / `npm run db:down` (`docker-compose.dev.yml`, `sonic`/`sonic`) |
+| Generate migrations (Drizzle) | `npm run db:gen` (`drizzle-kit generate`) |
+| Apply migrations (Drizzle → Postgres) | `npm run db:migrate` (`drizzle-kit migrate`) |
+| Drizzle Studio | `npm run db:studio` |
+| Seed Railway admin (org + station `urban-radio` + admin user) | `node scripts/seed-railway-admin.mjs` (configurable via `ORG_*` / `STATION_*` / `ADMIN_USERNAME` / `ADMIN_PASSWORD`) |
+| Postgres backup → S3 | `npm run backup:pg` (`scripts/backup-pg-to-s3.mjs`) |
+| R2 orphan janitor | `npm run janitor:r2` (`scripts/janitor-r2-orphans.mjs`) |
+| Docker build (Railway image) | `docker build -t sonic-bloom .` (`Dockerfile`, `node:22-alpine`, runs `node server.js`) |
+| **Legacy** — Firebase emulators / rules / App Hosting | `npm run emulators:start`, `deploy:firebase*`, `deploy:apphosting` — pre-migration only (see Legacy section) |
+| **Legacy** — Cloudflare Pages/Workers/D1 | `npm run cf:pages:list`, `pages:deploy`, `deploy`, `db:migrate:remote`, `docs/CLOUDFLARE_WORKERS_BUILDS.md` — pre-migration only (see Legacy section) |
 
 Path alias: `@/` → `src/` (see `tsconfig.json`).
 
-## Firebase (production)
+## Deploy & runtime (production)
+
+- **Host:** [Railway](https://railway.com), Docker deploy. `railway.json` → `builder: DOCKERFILE`, `startCommand: node server.js`, `healthcheckPath: /api/healthz`. The `Dockerfile` is a 3-stage `node:22-alpine` build that ships only the Next `standalone` output (`server.js` + `public/` + `.next/static/`).
+- **Repo / branch:** `github.com/KunanonJ/urban-radio`, branch `main`. Railway's **native GitHub integration** auto-deploys on push to `main`.
+- **Token-based deploy (opt-in):** `.github/workflows/deploy-railway.yml` runs `railway up` only when the repo variable `RAILWAY_DEPLOY_VIA_TOKEN == 'true'` (uses `RAILWAY_TOKEN` / `RAILWAY_PROJECT_ID` / `RAILWAY_SERVICE_NAME` secrets). Leave unset to rely on the native integration.
+- **Database:** PostgreSQL via Drizzle ORM. Client in `src/db/client.ts` (`getDb()` / `createDb()` need `DATABASE_URL`). Schema in `src/db/schema.ts`; apply migrations with `npm run db:migrate`.
+- **Storage:** S3-compatible (Cloudflare R2 endpoint) via `@aws-sdk/client-s3` + presigner. Env: `STORAGE_ENDPOINT_URL`, `STORAGE_BUCKET`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`, `STORAGE_REGION` (optional).
+- **Auth:** jose HS256 JWT session cookies. `AUTH_JWT_SECRET` (≥32 bytes), **fail-closed in production** (`src/server/auth/require-session.ts` returns **503** for non-public routes if unset; dev/test allow through). Middleware (`src/middleware.ts`, matcher `/api/:path*`) gates `/api/*` only — not `/app`. `src/server/auth/require-station.ts` gates `/api/catalog/*` and is fail-closed (**401** without a valid session).
+- **Backups:** `.github/workflows/pg-backup.yml` runs a daily `pg_dump` → S3 (`scripts/backup-pg-to-s3.mjs`).
+
+## Legacy — Firebase (pre-migration, NOT the active runtime)
+
+> Firebase is no longer how this app runs. `firebase` (^11.9.0) is still a not-yet-removed dependency and `functions/` + Firebase config files still exist, but production runs on Railway/Postgres (above). Kept for history.
 
 - **Project ID:** `the-urban-radio` (default in `.firebaserc`).
 - **Firestore (default database):** **asia-southeast3** (Bangkok — suitable for Thailand latency).
@@ -43,10 +54,12 @@ Path alias: `@/` → `src/` (see `tsconfig.json`).
 
 ## App structure
 
-- Routes live under **`src/app/`** (App Router). Feature screens are composed from **`src/views/`** — do **not** use **`src/pages/`** for routing (that name is reserved by the Pages Router).
-- Auth gate: cookie session + **`NEXT_PUBLIC_REQUIRE_AUTH`** (same idea as the old `VITE_REQUIRE_AUTH`).
+- Routes live under **`src/app/`** (App Router), including the API under `src/app/api/` (e.g. `GET /api/healthz` → `src/app/api/healthz/route.ts`). Feature screens are composed from **`src/views/`** — do **not** use **`src/pages/`** for routing (that name is reserved by the Pages Router).
+- Auth gate: jose JWT session cookie enforced by `src/middleware.ts` on **`/api/*`** (not `/app`); per-route station membership via `src/server/auth/require-station.ts`. See the Auth bullet under **Deploy & runtime**.
 
-## Cloudflare (hosting + API)
+## Legacy — Cloudflare (pre-migration, NOT the active runtime)
+
+> The app no longer runs on Cloudflare. `wrangler` (^4.80.0) is still a not-yet-removed dependency and `functions/` + `wrangler.toml` still exist, but production runs on Railway/Postgres. The top-level `migrations/*.sql` + `better-sqlite3` tests exercise the **legacy D1/SQLite migration path only** — the runtime DB is Postgres. Kept for history.
 
 - **Workers Builds / custom deploy step**: after producing a **static** folder, run **`bun run deploy`** (or **`npm run deploy`**). `npm run deploy` uploads **`out/`** (Next static export) if it exists, otherwise **`dist/`** (legacy). **`next build` alone does not create `out/` or `dist/`** — add static export (`output: 'export'`) plus `generateStaticParams`, or an adapter (e.g. OpenNext), before Pages deploy.
 - **Git-connected Pages**: set the dashboard **build output directory** to match your static output (`out` or `dist`). `wrangler.toml` → `pages_build_output_dir` is often `dist` for legacy; align dashboard and scripts.
@@ -72,8 +85,24 @@ Path alias: `@/` → `src/` (see `tsconfig.json`).
 
 - **Styling**: Tailwind + CSS variables (`src/app/globals.css`); follow existing patterns (`glass`, `surface-*`, sidebar/player CSS vars).
 - **New UI**: Extend shadcn components in `src/components/ui/` only when needed; feature components live in `src/components/`.
-- **State**: Player/queue/global UI → Zustand store. **TanStack Query** is wired in providers but may be unused until a real API exists.
+- **State**: Player/queue/global UI → Zustand store. **TanStack Query** is wired in providers for the live `/api/*` server data.
 - **Routing**: Add App Router segments under `src/app/`; keep `/app` children consistent with sidebar links.
+
+## Environment contract
+
+- **`.env.example` / `.env.local.example`**: `DATABASE_URL` is **required**. Local dev Postgres comes from `docker-compose.dev.yml` (`sonic`/`sonic`).
+- **Production vars (set on Railway, never committed)**: `AUTH_JWT_SECRET`, `STRIPE_WEBHOOK_SECRET`, `STORAGE_ENDPOINT_URL`, `STORAGE_BUCKET`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`, optional `STORAGE_REGION`, `STREAM_CONTROL_URL` / `STREAM_CONTROL_KEY`, `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`, `AI_AUDIO_URL_ALLOWED_HOSTS`.
+- Reference env vars by **name only** — never commit real values.
+
+## CI & tests
+
+- **`.github/workflows/ci.yml`**: job **`verify`** is the gate — `npm run verify` (lint → node vitest → migration tests → Playwright E2E against a `postgres:15` service + `db:migrate` → `next build`). A separate **`ui-tests`** job runs the jsdom vitest project with `continue-on-error: true` due to a known JS-heap OOM in the component suite.
+- **Vitest two-project split**: `npm test` = node project (the gate, ~1210 tests, pg-mem); `npm run test:ui` = jsdom project (best-effort, OOMs).
+- **E2E**: Playwright needs `DATABASE_URL`; webServer runs `next dev`. The `track-actions` suite is deferred via `test.describe.fixme` because `/api/catalog/tracks` is now auth-fail-closed and those specs never log in.
+
+## Security headers (`next.config.ts`)
+
+- CSP allows `fonts.googleapis.com` (style-src) + `fonts.gstatic.com` (font-src). Strict headers: HSTS, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`. `X-Powered-By` is stripped (`poweredByHeader: false`).
 
 ## Scope notes for changes
 
@@ -82,7 +111,7 @@ Path alias: `@/` → `src/` (see `tsconfig.json`).
 
 ## Documentation
 
-- Root **`README.md`** is still a Lovable placeholder; update it when the project is described for humans. **Do not** add extra markdown docs unless the user asks.
+- Root **`README.md`** describes the project for humans (Next.js 16 radio-automation app); keep it in sync with this file. **Do not** add extra markdown docs unless the user asks.
 
 ## Cursor / agent work rules
 

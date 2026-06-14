@@ -8,6 +8,8 @@
 
 ## 0. Status overview
 
+> **Platform note (2026-05-16, Wave RM):** the app has since **migrated off Cloudflare Pages Functions + D1 onto Railway** — Next.js 16 App Router (`output: "standalone"`) deployed via Docker (`node:22-alpine`, `node server.js`; see `railway.json` / `Dockerfile`), with **PostgreSQL via Drizzle ORM** (`src/db/`, applied with `npm run db:migrate`) and **S3-compatible storage** (Cloudflare R2 endpoint, via `@aws-sdk/client-s3`). Auth is `jose` HS256 session JWTs (`AUTH_JWT_SECRET`, fail-closed in production). Railway's native GitHub integration auto-deploys `main`; a token-based `deploy-railway.yml` exists but is opt-in (`vars.RAILWAY_DEPLOY_VIA_TOKEN == 'true'`). The phase narratives below predate this move: references to D1/R2-via-Workers, Cloudflare Pages Functions, and Fly.io describe the *original* plan, not the current runtime. Streaming (AzuraCast) is still genuinely deferred — see `docs/RAILWAY-MIGRATION-PLAN.md`. Legacy Cloudflare/Firebase files (`functions/`, `wrangler.toml`, `firebase.json`, top-level `migrations/`) still linger in the tree but are no longer how the app runs.
+
 **Last continuous run completed: 2026-05-14.** Phases 0–6 shipped in one continuous session with 30+ parallel agents. Test suite went from 86 → **1166** (1145 main + 21 migration). Phases 7–8 deferred.
 
 | # | Phase | Status | Sessions used | Kickoff doc |
@@ -23,9 +25,9 @@
 | 8 | Production hardening + launch | ⏳ Blocked (R0 — needs Stripe/Sentry/AzuraCast credentials) | 1–2 | §9 |
 
 **Critical path remaining:**
-- Phase 6.1 (Yjs CRDT presence on Durable Objects) — non-blocking nice-to-have
+- Phase 6.1 (Yjs CRDT presence on a self-hosted realtime server, e.g. a Railway WebSocket service; was scoped for Durable Objects pre-migration) — non-blocking nice-to-have
 - Phase 7 (PWA + a11y + settings + i18n) — fully achievable next session, no external deps
-- Phase 8 (production hardening) — needs your decisions on Stripe + Sentry + streaming infra (AzuraCast on Fly.io or Radio.co API)
+- Phase 8 (production hardening) — needs your decisions on Stripe + Sentry + streaming infra (AzuraCast on Railway or Radio.co API; see `docs/RAILWAY-MIGRATION-PLAN.md`)
 
 **R0 walls hit (all deferred with documented swap points):**
 - Real Icecast/Shoutcast streaming output — Phase 3 has stub adapter; one-line swap to `AzuraCastAdapter` when credentials land
@@ -88,17 +90,17 @@ See [PHASE-2-KICKOFF.md](./PHASE-2-KICKOFF.md). Summary:
 
 | # | Decision | Recommendation |
 |---|---|---|
-| D12 | Streaming engine | **Self-host AzuraCast on Fly.io** (free, AGPL, mature Liquidsoap inside). Alt: Radio.co API proxy ($$, faster to MVP). |
-| D13 | Stream control plane | REST over HTTPS from Pages Functions → AzuraCast admin API. Mutual auth via a long-lived API key kept in Pages env. |
-| D14 | Browser "Go Live" pipeline | WebRTC → server-side gateway (Janus or simple FFmpeg/wrtc bridge on Fly.io) → Icecast push to AzuraCast |
+| D12 | Streaming engine | **Self-host AzuraCast on Railway** (free, AGPL, mature Liquidsoap inside; was originally scoped for Fly.io pre-migration). Alt: Radio.co API proxy ($$, faster to MVP). |
+| D13 | Stream control plane | REST over HTTPS from the Next.js Route Handlers → AzuraCast admin API. Mutual auth via a long-lived API key kept in Railway env (`STREAM_CONTROL_URL` / `STREAM_CONTROL_KEY`). |
+| D14 | Browser "Go Live" pipeline | WebRTC → server-side gateway (Janus or simple FFmpeg/wrtc bridge as a sibling Railway service) → Icecast push to AzuraCast |
 | D15 | Now-playing metadata sink | Push to AzuraCast's `/api/internal/{station}/notify` + write to `play_log` on every track start |
-| D16 | Aircheck recording | AzuraCast records the master mount; download via signed URLs into a Pages Functions proxy for compliance access |
+| D16 | Aircheck recording | AzuraCast records the master mount; download via signed URLs into a Route Handler proxy for compliance access |
 | D17 | Stream failover | AzuraCast supports primary + relay mounts; fallback to a static "we'll be right back" loop |
 
 ### 4.2 Agent fleet plan
 
 **Wave 5a — Stream control plane (3 parallel):**
-- **P3-α** AzuraCast bootstrap: Fly.io app, secrets, mount config, station entry. R0 (operational), but reversible (tear down the Fly.io app).
+- **P3-α** AzuraCast bootstrap: Railway service (Docker image `ghcr.io/azuracast/azuracast:latest` + a mounted volume per `docs/RAILWAY-MIGRATION-PLAN.md`), secrets, mount config, station entry. R0 (operational), but reversible (tear down the Railway service).
 - **P3-β** Stream control API: `/api/stream/{start,stop,metadata,status}` proxies signed commands to AzuraCast. R1.
 - **P3-γ** Play-log writes: extend Phase 2's playout engine to `INSERT INTO play_log` on track start; debounce + batch.
 
@@ -119,7 +121,7 @@ A real listener at a real URL hears a real schedule for 24 hours uninterrupted. 
 
 ### 4.4 Honest dissent
 
-This phase **cannot** ship without the external infrastructure decision and budget. The CF Pages Functions runtime is stateless and can never host an Icecast TCP stream. Either commit to running AzuraCast / Fly.io or proxy to a managed provider (Radio.co, RadioKing). **Pause here for explicit user confirmation before spawning Wave 5a.**
+This phase **cannot** ship without the external infrastructure decision and budget. The Next.js web container (Railway; was CF Pages Functions pre-migration) is a request/response runtime and can never host a long-lived Icecast TCP stream. Either commit to running AzuraCast as a separate container (a sibling Railway service per `docs/RAILWAY-MIGRATION-PLAN.md`) or proxy to a managed provider (Radio.co, RadioKing). **Pause here for explicit user confirmation before spawning Wave 5a.**
 
 ---
 
@@ -188,7 +190,7 @@ Can run in parallel with Phase 4. Highest-leverage long-term differentiator vs R
 
 | # | Decision | Recommendation |
 |---|---|---|
-| D27 | Collab platform | **Liveblocks** managed Yjs for speed. Migrate to self-hosted Yjs on Durable Objects if cost grows. |
+| D27 | Collab platform | **Liveblocks** managed Yjs for speed. Migrate to a self-hosted Yjs WebSocket server (e.g. a Railway service; was Durable Objects pre-migration) if cost grows. |
 | D28 | Surfaces with CRDT | **Hour Clock Builder + Scheduler Grid + Voice Track editor**. Library remains TanStack Query (no CRDT). |
 | D29 | Comments scope | Anchored to clocks, clock_slots, schedule_assignments, voice_tracks. NOT on tracks (use existing notes field). |
 | D30 | Presence indicators | Avatar in top-right (Figma pattern); cursor in canvas/scheduler; locked-row indicator on edit |
@@ -240,9 +242,9 @@ PWA installable from `/app`; 3 mobile tasks work without network for 30 s outage
 |---|---|---|
 | D36 | Pricing model | SaaS-only, free tier (1 station, 100 tracks, no streaming) + paid tiers (streaming, multi-station, AI quota, royalty exports) |
 | D37 | Billing provider | **Stripe Billing** with metered usage for AI minutes and streaming hours |
-| D38 | Observability | **Cloudflare Analytics** (built-in) + **Sentry** for errors + **Better Stack** for uptime |
+| D38 | Observability | **Railway metrics** (built-in) + **Sentry** for errors + **Better Stack** for uptime |
 | D39 | Status page | `status.sonicbloom.app` (managed via Better Stack) |
-| D40 | Backup strategy | Daily off-site D1 dump (R2); R2 audio files versioned; weekly disaster-recovery drill |
+| D40 | Backup strategy | Daily off-site Postgres dump to S3/R2 (already shipped: `scripts/backup-pg-to-s3.mjs` + `.github/workflows/pg-backup.yml`); R2 audio files versioned; weekly disaster-recovery drill |
 | D41 | Support tier | Email + community Slack for free; priority email for paid; dedicated for enterprise (≥5 stations) |
 | D42 | Legal | Privacy policy, ToS, DSAR self-serve, music-licensing disclaimer (we don't cover SoundExchange/BMI/ASCAP — operator's responsibility) |
 
@@ -250,8 +252,8 @@ PWA installable from `/app`; 3 mobile tasks work without network for 30 s outage
 
 **Wave 10 (4 parallel):**
 - **P8-α** Stripe billing integration + plan gates in the UI
-- **P8-β** Observability wiring: Sentry, Better Stack, Cloudflare analytics dashboards
-- **P8-γ** Backup + DR drill: nightly D1 dump → R2; weekly automated restore test in a staging D1
+- **P8-β** Observability wiring: Sentry, Better Stack, Railway metrics dashboards
+- **P8-γ** Backup + DR drill: nightly Postgres dump → S3/R2 (shipped); weekly automated restore test in a staging Postgres
 - **P8-δ** Legal pages + DSAR self-serve + status page
 
 ### 9.3 Exit criteria
@@ -271,11 +273,11 @@ D6–D11 (Phase 2), D12–D17 (Phase 3), D18–D22 (Phase 4), D23–D26 (Phase 5
 | # | Risk | Probability | Mitigation |
 |---|---|---|---|
 | R1 | Streaming sidecar (AzuraCast / Liquidsoap) maintenance burden | High | Treat as off-the-shelf; never customize beyond config |
-| R2 | Liveblocks bill at scale | Med | Build with Yjs primitives; swap to self-hosted Durable Objects if cost >$X/mo |
+| R2 | Liveblocks bill at scale | Med | Build with Yjs primitives; swap to a self-hosted Yjs WebSocket server (Railway; was Durable Objects pre-migration) if cost >$X/mo |
 | R3 | AI cost spirals | Med | Hard caps per org + plan; show $ per generation in UI |
 | R4 | Royalty template formats change | Med | Auto-pull from each PRO's spec; test against validators monthly |
 | R5 | WCAG audit reveals deep refactor | Low | Radix is pre-tested; axe-core in CI from Phase 7 |
-| R6 | D1 10 GB / DB limit hit on `play_log` | Med | Partition by station + month; archive to R2 |
+| R6 | Postgres growth on `play_log` (was D1's 10 GB cap pre-migration) | Med | Partition by station + month; archive to S3/R2 |
 | R7 | Multi-station feature breaks single-station users | High | Already mitigated — schema is multi-tenant from day 1; UI ships single-station mode by default |
 | R8 | "Honesty bug" regresses (fake feature ships labelled real) | Med | Mandatory PR-review checklist; lint rule for `mock*` imports in production code |
 
@@ -308,8 +310,8 @@ D6–D11 (Phase 2), D12–D17 (Phase 3), D18–D22 (Phase 4), D23–D26 (Phase 5
 
 | Service | Cost/mo |
 |---|---|
-| Cloudflare Workers/Pages + D1 + R2 | ~$30 |
-| Fly.io (AzuraCast container) | ~$25 |
+| Railway (Next.js standalone container + Postgres) + R2 storage | ~$30 |
+| Railway (AzuraCast container, when streaming lands) | ~$25 |
 | Liveblocks (managed Yjs) | ~$20 |
 | ElevenLabs (VT generation, light usage) | ~$50 |
 | Deepgram (captions, light usage) | ~$15 |
@@ -328,7 +330,7 @@ Pricing should target ≥ 2× margin: free tier (no streaming) loss-leader, $19/
 3. **Every agent has a strict file allowlist.** Conflicts across parallel agents are an orchestrator bug, not an agent bug.
 4. **Every R1+ change includes a rollback plan in the agent's report.**
 5. **Every phase ends with a synthesis verify**: `npm run verify` (lint + main vitest + migration vitest + e2e + build) must pass before declaring done.
-6. **No honesty bugs.** A UI element that says "ON AIR" must actually transmit. A "real catalog" must actually query D1, not fall back to mocks.
+6. **No honesty bugs.** A UI element that says "ON AIR" must actually transmit. A "real catalog" must actually query the database (now Postgres, was D1), not fall back to mocks.
 7. **Out-of-scope is sacred.** Phase 2 does not touch Phase 3 work. Tracked follow-ups go in §10.3 of this file, not into the current PR.
 
 ---

@@ -31,12 +31,14 @@ This document describes how the app is tested: unit/integration (Vitest), end-to
 
 ## Unit / integration tests (Vitest)
 
-**Run:** `npm test` (or `npm run test:watch` during development).
+**Run:** `npm test` (node project — the CI gate) or `npm run test:ui` (jsdom project — best-effort, see note). `npm run test:all` runs both; `npm run test:watch` during development.
+
+Vitest is split into two projects (`vitest.config.ts`). The **node** project (`npm test`) covers `src/server/**`, `src/db/**`, `functions/**`, and `scripts/**` — pure logic plus `pg-mem`, no DOM. This is the blocking gate. The **jsdom** project (`npm run test:ui`) covers `src/components/**`, `src/views/**`, `src/lib/**`, `src/hooks/**`, and `src/test/**`; it carries a known heap-OOM in the component suite, so it is best-effort and **not** in the `npm test` gate.
 
 **Current focus areas:**
 
-- **Queue reorder** (`src/lib/queue-reorder.test.ts`): `moveQueueItem`, drag constraints, shuffle-mode behavior. Component-level queue UI tests can be added under `src/components/**/*.test.tsx` when needed.
-- **Other units**: `auth-store`, `playback-recovery`, `recently-added`, `spot-schedule-engine`, `utils`, plus `src/test/example.test.ts`.
+- **Queue reorder** (`src/lib/queue-reorder.test.ts`): `moveQueueItem`, drag constraints, shuffle-mode behavior. This and the other `src/lib/**` units run under the **jsdom** project (`npm run test:ui`). Component-level queue UI tests can be added under `src/components/**/*.test.tsx` when needed.
+- **Other jsdom units** (`npm run test:ui`): `auth-store`, `playback-recovery`, `recently-added`, `spot-schedule-engine`, `utils`, plus `src/test/example.test.ts`.
 
 **Conventions:**
 
@@ -74,7 +76,7 @@ Locale: queue title may be localized (e.g. Thai); tests scope headings to `queue
 
 ## CI recommendations
 
-GitHub Actions runs **`.github/workflows/ci.yml`**: `npm ci` → install Chromium → **`npm run verify`** (lint, unit tests, E2E, production build).
+GitHub Actions runs **`.github/workflows/ci.yml`**. The blocking `verify` job spins up a `postgres:15-alpine` service (the migrated `/app` shell and `/api/catalog/*` call `getDb()`), then: `npm ci` → `npm audit --omit=dev --audit-level=high` → `tsc --noEmit` → **`npm run db:migrate`** (Drizzle migrations against the service Postgres) → install Chromium → **`npm run verify`** (lint, node unit tests, migration tests, E2E, production build). `DATABASE_URL` is set job-wide; `AUTH_JWT_SECRET` is intentionally left unset so the middleware's dev allow-through keeps the logged-out E2E specs green. A separate **`ui-tests`** job runs `npm run test:ui` (jsdom project) with `continue-on-error: true` due to the known component-suite OOM.
 
 For other runners, mirror that order. On Linux, install browsers before E2E:
 
@@ -92,7 +94,7 @@ Artifacts: workflow uploads Playwright report on failure (paths gitignored local
 
 ## Full verification (local or release)
 
-**One command** (runs lint → unit tests → E2E → build):
+**One command** (runs lint → node unit tests → migration tests → E2E → build):
 
 ```bash
 npm run verify
@@ -103,9 +105,10 @@ Equivalent manual steps (all should exit 0):
 | Step | Command | Expect |
 |------|---------|--------|
 | 1 | `npm run lint` | No ESLint errors |
-| 2 | `npm test` | All Vitest files green |
-| 3 | `npm run test:e2e` | All Playwright specs green (starts dev server via config) |
-| 4 | `npm run build` | Next.js production build succeeds |
+| 2 | `npm test` | Node-project Vitest files green (the gate) |
+| 3 | `npm run test:migrations` | Migration tests green (`migrations/**/*.test.ts`) |
+| 4 | `npm run test:e2e` | All Playwright specs green (starts dev server via config; needs `DATABASE_URL`) |
+| 5 | `npm run build` | Next.js production build succeeds |
 
 ## When something fails (recovery plan)
 

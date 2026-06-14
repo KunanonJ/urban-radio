@@ -1,5 +1,7 @@
 # Cloudflare Access (gate before the app)
 
+> **SUPERSEDED (2026-06-14):** The project has migrated to **Railway (Docker) + PostgreSQL**. It no longer runs on Cloudflare Pages / Pages Functions, and the Cloudflare Access JWT gate (`ACCESS_TEAM_DOMAIN` / `ACCESS_POLICY_AUD`) described below is no longer the auth mechanism — runtime auth is now jose HS256 JWT session cookies. This document is retained for historical reference only. For the current stack and setup, see [docs/RAILWAY-KICKOFF.md](docs/RAILWAY-KICKOFF.md).
+
 This project uses **Cloudflare Pages** for the SPA and **Pages Functions** for `/api/*`. **Cloudflare Access** runs at the **edge**: it shows the Access login *before* your HTML or APIs are served. No React sign-in UI is required for that gate.
 
 ## 1. Create an Access application (UAT)

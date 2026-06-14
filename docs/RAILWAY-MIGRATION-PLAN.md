@@ -2,9 +2,25 @@
 
 **Audience:** the human + AI pair making the call.
 
-**Last updated:** 2026-05-15
+**Last updated:** 2026-06-14
 
 **Workrules tier:** Plan is R2 (doc). Execution is **R1 minimum, R0 if production data moves**.
+
+> **Status (2026-06-14): SUPERSEDED BY EXECUTION — Option A (full migration) shipped.**
+> Despite the recommendation below to avoid a full migrate, the project ultimately
+> went all-in on Railway. The app now runs on **Railway via Docker** (`Dockerfile`,
+> `node:22-alpine`, `node server.js`; `railway.json` builder=DOCKERFILE,
+> healthcheck `/api/healthz`), on **Next.js 16 App Router** with `output: 'standalone'`.
+> Data is **PostgreSQL via Drizzle ORM** (`src/db/client.ts`, `npm run db:migrate`),
+> storage is **S3-compatible** (Cloudflare R2 endpoint via `@aws-sdk/client-s3`,
+> `STORAGE_*` env vars), and auth is **jose HS256 JWT** (`src/server/auth/`).
+> Deploys go through **Railway's native GitHub integration** on push to `main`;
+> the token-based `.github/workflows/deploy-railway.yml` is opt-in
+> (`vars.RAILWAY_DEPLOY_VIA_TOKEN == 'true'`). See
+> [RAILWAY-KICKOFF.md](./RAILWAY-KICKOFF.md) and
+> [RAILWAY-CUTOVER-PLAYBOOK.md](./RAILWAY-CUTOVER-PLAYBOOK.md) for the as-built record.
+> The option analysis below is retained as the decision record; the legacy Cloudflare
+> (D1/R2/Pages Functions) and Firebase stacks are no longer how the app runs.
 
 ---
 
@@ -186,10 +202,17 @@ Full migration. Multi-week. Don't take this lightly.
 6. Once green, **delete** `functions/api/*` and `wrangler.toml`'s D1/R2 bindings
 
 **Phase RM-4 — Deploy + verify (R1, ~2 days)**
-1. Connect Railway to the GitHub repo
-2. Configure build: `npm run build`, start: `npm start`
-3. Wire env vars: `DATABASE_URL`, `S3_*`, `AUTH_JWT_SECRET`, `NEXT_PUBLIC_*`
-4. Run migrations on deploy via a `release` script
+> As built (2026-06): steps 1–2 landed as a Docker build, not Nixpacks. `railway.json`
+> sets builder=DOCKERFILE; the `Dockerfile` produces a Next.js `standalone` image and
+> the deploy `startCommand` is `node server.js` (not `npm start`) with healthcheck
+> `/api/healthz`. Storage env vars are `STORAGE_*` (R2 S3 endpoint), not `S3_*`.
+> Deploys run on Railway's native GitHub integration on push to `main`.
+1. Connect Railway to the GitHub repo (native GitHub integration auto-deploys `main`)
+2. Configure the build via `Dockerfile` (`railway.json` builder=DOCKERFILE); the
+   container starts with `node server.js` and is health-checked at `/api/healthz`
+3. Wire env vars: `DATABASE_URL`, `STORAGE_*` (`STORAGE_ENDPOINT_URL`, `STORAGE_BUCKET`,
+   `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`), `AUTH_JWT_SECRET`
+4. Run migrations with `npm run db:migrate` (drizzle-kit)
 5. Smoke test against the Railway URL
 6. Update DNS (if you have a custom domain)
 7. **Don't** delete the Cloudflare project for 1 week — that's your rollback

@@ -93,6 +93,12 @@ point.
    check against the actual rendered colors cannot run inside jsdom. A
    separate Playwright/axe pass against the real browser is recommended.
 
+   _Update (2026-06):_ that real-browser pass now exists as `e2e/a11y.spec.ts`
+   (using `@axe-core/playwright`, `wcag2a` + `wcag2aa` tags) and runs in the CI
+   gate via `npm run test:e2e`. The `color-contrast` rule itself is still
+   disabled there and tracked as an open finding (see the `TODO(a11y)` notes in
+   that spec).
+
 2. **Manual screen-reader pass (JAWS / NVDA / VoiceOver)**
    axe catches roughly 50% of a11y issues. Live screen-reader walkthroughs
    are needed for: live-region announcements during playback transitions,
@@ -105,15 +111,25 @@ point.
    and that the LayoutPicker on LiveStudioPage works without a pointer.
 
 4. **CI gate**
-   Wiring a CI step that runs `npx vitest run src/test/a11y-pages.test.tsx`
-   as a hard gate is deferred to the deployment side. The suite is already
-   part of `npm test`, so it runs in the existing CI workflow today; turning
-   it into a release blocker is the additional step.
+   Wiring a CI step that runs `npx vitest run --project=jsdom src/test/a11y-pages.test.tsx`
+   as a hard gate is deferred to the deployment side. The jsdom suite (which
+   includes these a11y tests, per `src/test/**` in `vitest.config.ts`) runs in
+   CI only via the non-blocking `ui-tests` job (`npm run test:ui`,
+   `continue-on-error: true` due to the known component-suite OOM) — it is NOT
+   part of the blocking `npm test`/`npm run verify` gate, which runs only the
+   `node` project. Turning the a11y check into a release blocker is the
+   additional step.
+
+   _Note (2026-06):_ the real-browser axe pass (`e2e/a11y.spec.ts`, see item 1
+   above) has since landed and DOES run in the blocking gate
+   (`npm run verify` → `npm run test:e2e`).
 
 ## Recommended next steps
 
-- [ ] Wire axe-core into the Playwright e2e suite so color-contrast can be
-      evaluated in a real browser.
+- [x] Wire axe-core into the Playwright e2e suite so color-contrast can be
+      evaluated in a real browser. _(Done 2026-06: `e2e/a11y.spec.ts` +
+      `@axe-core/playwright`; `color-contrast` remains disabled there pending a
+      contrast fix.)_
 - [ ] Add focus-visible regression tests for keyboard-only navigation across
       Live Studio, Schedule, and Reports.
 - [ ] Pair with a screen-reader user on the recorder + scheduler flows.

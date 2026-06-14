@@ -4,46 +4,50 @@ This document tells an operator how to flip Sonic Bloom from "demo mode" to "pro
 
 > Audience: on-call engineer, SRE, founder shipping the first paid plan.
 > Last updated: Phase 8 scaffolding PR.
+>
+> **2026-06 note (Railway migration):** the runtime is now Next.js (App Router, standalone) on Railway via Docker, with Postgres (Drizzle) and S3-compatible (R2) storage. References below have been updated from the legacy Cloudflare Pages/D1 stack; the active API handlers live under `src/app/api/*/route.ts`, not `functions/api/*.ts`.
 
 ## 1. Quick-glance status
 
 | Capability                  | Code lives at                                | Activates when…                          |
 | --------------------------- | -------------------------------------------- | ---------------------------------------- |
-| Uptime probe (`/api/healthz`) | `functions/api/healthz.ts`                  | Always on (public).                      |
-| Status page (`/api/status`) | `functions/api/status.ts`                    | Always on (public).                      |
-| Stripe webhook              | `functions/api/webhooks/stripe.ts`           | `STRIPE_WEBHOOK_SECRET` is set.          |
-| Server-side error tracking  | `functions/_lib/observability.ts`            | `SENTRY_DSN` is set.                     |
+| Uptime probe (`/api/healthz`) | `src/app/api/healthz/route-impl.ts`         | Always on (public).                      |
+| Status page (`/api/status`) | `src/app/api/status/route-impl.ts`           | Always on (public).                      |
+| Stripe webhook              | `src/app/api/webhooks/stripe/route-impl.ts`  | `STRIPE_WEBHOOK_SECRET` is set.          |
+| Server-side error tracking  | `functions/_lib/observability.ts` (legacy stub) | `SENTRY_DSN` is set.                  |
 | Browser error tracking      | `src/lib/sentry-client.ts`                   | `NEXT_PUBLIC_SENTRY_DSN` is set.         |
-| Nightly D1 → R2 backup      | `scripts/backup-d1-to-r2.mjs`                | Cron schedules `npm run backup`.         |
+| Nightly Postgres → S3 backup | `scripts/backup-pg-to-s3.mjs`               | `pg-backup.yml` cron runs `npm run backup:pg`. |
 
 ## 2. Setting environment variables
 
 ### Local development
 
-Add to `.dev.vars` (gitignored). Template lives in `.dev.vars.example`. Example:
+Add to `.env` / `.env.local` (gitignored). Templates live in `.env.example` and `.env.local.example`. Example:
 
 ```
+DATABASE_URL=postgresql://sonic:sonic@localhost:5432/sonic_bloom
 STRIPE_WEBHOOK_SECRET=whsec_local_test_secret_from_stripe_cli
-SENTRY_DSN=https://example@o0.ingest.sentry.io/0
-BACKUP_BUCKET=sonic-bloom-media
+STORAGE_BUCKET=sonic-bloom-media
 ```
+
+Local dev Postgres comes from `docker-compose.dev.yml` (`npm run db:up`); apply schema with `npm run db:migrate`.
 
 Browser-side `NEXT_PUBLIC_SENTRY_DSN` belongs in `.env.local` so Next.js inlines it at build time.
 
-### Cloudflare Pages — production
+### Railway — production
 
-Two paths, pick one per variable:
+Set production variables on the Railway service:
 
-1. **Dashboard** — Cloudflare → Workers & Pages → your project → Settings → Environment Variables → Production. Add and click "Encrypt" for secrets.
-2. **wrangler CLI** —
+1. **Dashboard** — Railway → your project → the service → Variables. Add each variable; secrets are stored encrypted.
+2. **Railway CLI** —
 
    ```sh
-   wrangler pages secret put STRIPE_WEBHOOK_SECRET --project-name homeseeker
-   wrangler pages secret put SENTRY_DSN --project-name homeseeker
-   wrangler pages secret put BACKUP_BUCKET --project-name homeseeker
+   railway variables --set STRIPE_WEBHOOK_SECRET=whsec_…
+   railway variables --set AUTH_JWT_SECRET=…
+   railway variables --set STORAGE_BUCKET=sonic-bloom-media
    ```
 
-`NEXT_PUBLIC_*` variables are NOT secrets — they ship to the browser. Add them as plain env vars in the dashboard (or via `wrangler pages env`).
+`NEXT_PUBLIC_*` variables are NOT secrets — they ship to the browser and are inlined at build time, so they must be present in the build environment too.
 
 ## 3. Stripe webhook setup
 
@@ -55,7 +59,7 @@ Two paths, pick one per variable:
    - `customer.subscription.updated`
    - `customer.subscription.deleted`
 4. Copy the **signing secret** (starts with `whsec_…`).
-5. Set `STRIPE_WEBHOOK_SECRET` in Pages (see §2).
+5. Set `STRIPE_WEBHOOK_SECRET` on Railway (see §2).
 
 ### What each event does today
 
@@ -88,92 +92,68 @@ The handler intentionally does NOT mutate `organizations.plan` yet. To flip it o
 ### Verifying the webhook in production
 
 ```sh
-# Trigger a test event from the Stripe dashboard, then:
-wrangler tail homeseeker --format pretty | grep stripe-webhook
+# Trigger a test event from the Stripe dashboard, then tail the Railway logs:
+railway logs | grep stripe-webhook
 ```
 
 Expected log line on success: `[stripe-webhook] handling event { id: 'evt_…', type: '…' }`.
 
-Failures with `invalid_signature` usually mean the wrong webhook secret is set OR the body was rewritten by a proxy (Cloudflare itself does NOT touch POST bodies for `/api/*` routes — but a custom rule could).
+Failures with `invalid_signature` usually mean the wrong webhook secret is set OR the request body was rewritten before reaching the handler (a proxy or middleware that re-parses POST bodies).
 
 ## 4. Sentry setup
 
-1. Create a project in Sentry → choose "JavaScript → Next.js" for browser, "Node.js → Cloudflare Workers" for server (different DSNs).
+1. Create a project in Sentry → choose "JavaScript → Next.js" for browser, "Node.js" for server (different DSNs).
 2. Set the two env vars:
    - `SENTRY_DSN` — server-side DSN.
    - `NEXT_PUBLIC_SENTRY_DSN` — browser DSN.
-3. Phase 8 ships a **stub adapter** — when the DSN is set, errors log via `console.error` with a `[observability]` tag. The follow-up PR (tracked as "wire toucan-js for Cloudflare Workers") will swap the body of `initObservability` to call `toucan-js.captureException` instead. **No callsite changes required.**
+3. There is no active server-side Sentry adapter yet — the App Router routes under `src/app/api/*` log errors via `console.error` (and `src/server/internal-error.ts`), which Railway captures in its logs. The legacy `functions/_lib/observability.ts` stub is a Cloudflare-Workers-era artifact and is NOT wired into the current Node runtime; wiring `@sentry/nextjs` is a follow-up.
 
-### What the stub gives you today
+### What's wired today
 
-- Every `captureError(env, err, ctx)` call is a no-op without DSN, a structured log with DSN.
-- Browser: `initSentryClient` already SSR-safe and DSN-gated.
+- Server: API routes log errors to stdout/stderr via `console.error`; Railway captures these in its log stream. No DSN-gated server client is active yet.
+- Browser: `src/lib/sentry-client.ts` `initSentryClient` is SSR-safe and DSN-gated — a no-op without `NEXT_PUBLIC_SENTRY_DSN`, a thin console-backed `captureException` client with it.
 
 ### Adding the real Sentry SDK (follow-up)
 
 ```sh
-npm install --save @sentry/cloudflare-workers @sentry/nextjs
-# Then in functions/_lib/observability.ts:
-#   import { Toucan } from 'toucan-js';
-#   return new Toucan({ dsn, request, context });
-# In src/app/sentry.client.config.ts:
-#   import * as Sentry from '@sentry/nextjs';
-#   Sentry.init({ dsn: process.env.NEXT_PUBLIC_SENTRY_DSN });
+npm install --save @sentry/nextjs
+# Browser + server are both covered by @sentry/nextjs on a Node runtime:
+#   In sentry.client.config.ts:
+#     import * as Sentry from '@sentry/nextjs';
+#     Sentry.init({ dsn: process.env.NEXT_PUBLIC_SENTRY_DSN });
+#   In sentry.server.config.ts:
+#     Sentry.init({ dsn: process.env.SENTRY_DSN });
 ```
 
-## 5. D1 → R2 backups
+## 5. Postgres → S3 backups
 
 ### Script
 
-`scripts/backup-d1-to-r2.mjs` runs `wrangler d1 export` then `wrangler r2 object put`. The script is shell-free (uses `spawnSync` with argv arrays), so env-derived values cannot escape into command injection. Keys are dated, so backups never overwrite each other:
+`scripts/backup-pg-to-s3.mjs` runs `pg_dump --format=custom --no-owner` against `DATABASE_URL`, uploads the dump to the S3-compatible bucket (`@aws-sdk/client-s3`), then optionally prunes objects older than `BACKUP_RETENTION_DAYS`. The dump is invoked via `spawnSync` with `shell:false`, so env-derived values cannot escape into command injection. Keys are dated, so backups never overwrite each other:
 
 ```
-r2://<BACKUP_BUCKET>/backups/sonic-bloom-db-2026-05-14T21-30-00.000Z.sql
+s3://<STORAGE_BUCKET>/<BACKUP_PREFIX>sonic-bloom-pg-2026-05-14T21-30-00-000Z.dump
 ```
+
+`BACKUP_PREFIX` defaults to `backups/pg/`; `STORAGE_REGION` defaults to `auto` (R2).
 
 ### Run on demand
 
 ```sh
-BACKUP_BUCKET=sonic-bloom-backups npm run backup
+npm run backup:pg
 ```
 
-### Schedule — GitHub Actions (recommended for v1)
+Requires `DATABASE_URL` and the `STORAGE_*` vars. Set `BACKUP_DRY_RUN=1` to dump without uploading.
 
-`.github/workflows/backup.yml` (not shipped — paste manually):
+### Schedule — GitHub Actions (shipped)
 
-```yaml
-name: nightly-d1-backup
-on:
-  schedule:
-    - cron: '17 3 * * *'    # 03:17 UTC nightly
-  workflow_dispatch: {}
-jobs:
-  backup:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - run: npm ci
-      - env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          BACKUP_BUCKET: ${{ secrets.BACKUP_BUCKET }}
-        run: npm run backup
-```
-
-API token scope: `Account → D1 (Read)` + `Account → R2 (Edit)`.
-
-### Schedule — Cloudflare Cron (alternative)
-
-Use a Worker with a Cron Trigger. Out of scope for Phase 8; see <https://developers.cloudflare.com/workers/configuration/cron-triggers/>.
+`.github/workflows/pg-backup.yml` already runs nightly (`cron: '17 3 * * *'`, 03:17 UTC) and on `workflow_dispatch`. It installs the Postgres client, runs `npm run backup:pg`, and reads these from repo secrets: `DATABASE_URL`, `STORAGE_ENDPOINT_URL`, `STORAGE_BUCKET`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`, `STORAGE_REGION`, `BACKUP_PREFIX`, `BACKUP_RETENTION_DAYS`.
 
 ### Restore drill
 
 ```sh
-wrangler r2 object get sonic-bloom-backups/backups/sonic-bloom-db-2026-05-14T21-30-00.000Z.sql --file=restore.sql
-wrangler d1 execute sonic-bloom-db --remote --file=restore.sql
+# Download the dump from the S3-compatible bucket (e.g. with the aws CLI against the R2 endpoint), then:
+pg_restore --no-owner --dbname "$DATABASE_URL" sonic-bloom-pg-2026-05-14T21-30-00-000Z.dump
 ```
 
 Run a restore drill at least once before relying on backups in production.
@@ -183,9 +163,9 @@ Run a restore drill at least once before relying on backups in production.
 | Surface              | Where                                          | Why                                        |
 | -------------------- | ---------------------------------------------- | ------------------------------------------ |
 | Uptime               | Better Stack / UptimeRobot pinging `/api/healthz` every 60s. | Detects total outages.   |
-| Deep uptime          | Same monitor with `?probe=db` every 5min.      | Detects D1 outages.                        |
+| Deep uptime          | Same monitor with `?probe=db` every 5min.      | Detects Postgres outages.                  |
 | Error tracking       | Sentry (once DSN set).                         | Stack traces with breadcrumbs.             |
-| Build/runtime logs   | Cloudflare → Workers & Pages → Logs → Live.    | Real-time stdout/stderr.                   |
+| Build/runtime logs   | Railway → your service → Deployments → Logs (or `railway logs`). | Real-time stdout/stderr.   |
 | Stripe events        | Stripe dashboard → Webhooks → endpoint detail. | Per-event delivery status & retries.       |
 | Public status        | `/api/status` JSON, surface in a status page.  | Encoder + scheduler + last broadcast.      |
 
@@ -201,7 +181,7 @@ Run a restore drill at least once before relying on backups in production.
 
 ### Stripe webhook broken
 
-1. **Fastest**: unset `STRIPE_WEBHOOK_SECRET` via Pages dashboard. The handler returns 503 `stripe_not_configured`, Stripe retries (24h window), no payments are lost — they remain pending in Stripe.
+1. **Fastest**: unset `STRIPE_WEBHOOK_SECRET` via the Railway dashboard. The handler returns 503 `stripe_not_configured`, Stripe retries (24h window), no payments are lost — they remain pending in Stripe.
 2. **Code fix**: revert the offending commit and redeploy. Re-set `STRIPE_WEBHOOK_SECRET`.
 
 ### Sentry sending too much / leaking PII
@@ -212,8 +192,8 @@ Run a restore drill at least once before relying on backups in production.
 ### Backup script failing
 
 1. Backups are write-only; a failure does not impact production traffic.
-2. Run the script manually with `BACKUP_BUCKET=… npm run backup` to capture stderr.
-3. Common causes: `CLOUDFLARE_API_TOKEN` missing/expired; R2 bucket doesn't exist; D1 export hitting Cloudflare rate limits at scale (rare).
+2. Run the script manually with `npm run backup:pg` (env: `DATABASE_URL` + `STORAGE_*`) to capture stderr.
+3. Common causes: `STORAGE_ACCESS_KEY_ID`/`STORAGE_SECRET_ACCESS_KEY` missing or invalid; the `STORAGE_BUCKET` doesn't exist; `pg_dump` not installed or unable to reach `DATABASE_URL`.
 
 ### Status page leaking data
 
@@ -229,18 +209,18 @@ If you need to take it down, deploy a one-line patch that returns `{ ok: false }
 
 Before declaring Phase 8 production-live:
 
-- [ ] `STRIPE_WEBHOOK_SECRET` set in Pages production.
+- [ ] `STRIPE_WEBHOOK_SECRET` set on Railway production.
 - [ ] Stripe dashboard endpoint configured with the 4 events listed in §3.
 - [ ] One test Stripe event delivered successfully (check audit_log).
 - [ ] `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN` set; one deliberate test error captured (run `throw new Error('sentry test')` from a handler).
-- [ ] `BACKUP_BUCKET` set; manual `npm run backup` succeeds.
-- [ ] GitHub Actions backup workflow scheduled.
+- [ ] `STORAGE_*` set; manual `npm run backup:pg` succeeds.
+- [ ] GitHub Actions `pg-backup.yml` workflow scheduled (secrets populated).
 - [ ] Restore drill from a real backup completed against a scratch DB.
 - [ ] Uptime monitor pinging `/api/healthz` every 60s with paging on failure.
 - [ ] `/api/status` surfaced on a public status page.
 
 When the follow-up "real Sentry SDK" PR lands, this checklist gains:
 
-- [ ] `@sentry/cloudflare-workers` installed.
-- [ ] `toucan-js` swap in `functions/_lib/observability.ts` deployed.
+- [ ] `@sentry/nextjs` installed.
+- [ ] `sentry.client.config.ts` + `sentry.server.config.ts` wired and deployed.
 - [ ] Source maps uploaded to Sentry for each release (`sentry-cli releases new …`).
