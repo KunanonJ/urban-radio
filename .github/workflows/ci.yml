@@ -13,6 +13,31 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Postgres for the E2E suite: the migrated app's `/app` shell and
+    # `/api/catalog/*` call getDb(), which throws without DATABASE_URL. The
+    # health check gates steps until the DB accepts connections (no race).
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: sonic
+          POSTGRES_PASSWORD: sonic
+          POSTGRES_DB: sonic_bloom_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sonic"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      # Consumed by `drizzle-kit migrate` and the Playwright-spawned `next dev`.
+      # Safe job-wide: the node unit tests manage their own
+      # process.env.DATABASE_URL (src/db/client.test.ts deletes it in setup).
+      # AUTH_JWT_SECRET is intentionally left UNSET so the middleware's dev
+      # allow-through keeps the logged-out E2E specs green; the auth-dependent
+      # track-actions tests are deferred (test.fixme) pending an E2E login setup.
+      DATABASE_URL: postgresql://sonic:sonic@localhost:5432/sonic_bloom_test
     steps:
       - uses: actions/checkout@v4
 
@@ -31,6 +56,12 @@ jobs:
 
       - name: Typecheck
         run: npx tsc --noEmit
+
+      # Apply Drizzle migrations to the service Postgres so the E2E dev server
+      # boots against a real schema (empty data is fine — data-driven specs
+      # seed via localStorage).
+      - name: Apply database migrations
+        run: npm run db:migrate
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium

@@ -74,10 +74,21 @@ test.describe('Dashboard queue Gantt', () => {
     await page.setViewportSize({ width: 600, height: 700 });
     await page.goto('/app');
 
-    await page.getByRole('radio', { name: 'Gantt chart' }).click();
+    // Hydration race (seen on slow CI runners): Playwright can click the SSR'd
+    // radio before React attaches the onClick handler, which registers focus
+    // but not selection — "List" stays checked and the Gantt view never mounts.
+    // Retry the click until aria-checked actually flips. Clicking an already-
+    // selected radio is idempotent, so extra iterations are harmless.
+    const ganttRadio = page.getByRole('radio', { name: 'Gantt chart' });
+    await expect(ganttRadio).toBeVisible();
+    await expect(async () => {
+      await ganttRadio.click();
+      await expect(ganttRadio).toBeChecked({ timeout: 1_000 });
+    }).toPass({ timeout: 15_000 });
 
     const scroll = page.getByTestId('queue-gantt-scroll');
-    await expect(scroll).toBeVisible();
+    // Generous timeout: the timeline chart is heavy to mount on a cold runner.
+    await expect(scroll).toBeVisible({ timeout: 10_000 });
 
     const dims = await scroll.evaluate((el) => ({
       scrollWidth: el.scrollWidth,

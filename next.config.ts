@@ -35,11 +35,15 @@ const API_CSP = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'";
 const APP_CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-  "style-src 'self' 'unsafe-inline'",
+  // fonts.googleapis.com serves the @import stylesheet in globals.css; the
+  // matching woff2 files come from fonts.gstatic.com. Without these two origins
+  // the hardened CSP blocks the app's own fonts in every browser (caught by
+  // e2e/console-health). A tighter future option is self-hosting via next/font.
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https://images.unsplash.com",
   "media-src 'self' blob:",
   "connect-src 'self'",
-  "font-src 'self' data:",
+  "font-src 'self' data: https://fonts.gstatic.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
 ].join("; ");
