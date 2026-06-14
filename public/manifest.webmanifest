@@ -1,0 +1,18 @@
+{
+  "name": "Sonic Bloom",
+  "short_name": "Sonic Bloom",
+  "description": "Radio automation studio in the browser.",
+  "start_url": "/app",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["entertainment", "music", "productivity"]
+}

@@ -1,0 +1,35 @@
+---
+description: Sonic Bloom — React/TS UI patterns and E2E-friendly markup
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend conventions (`src/`)
+
+## Imports and types
+
+- Use path alias **`@/`** for `src/` (see `tsconfig.json`).
+- Domain types live in **`src/lib/types.ts`**.
+
+## State and data
+
+- **Player, queue, global UI** → Zustand **`usePlayerStore`** (`src/lib/store.ts`).
+- TanStack Query is wired in app providers but may be unused until real API calls exist.
+
+## UI structure
+
+- **shadcn/Radix** primitives: extend **`src/components/ui/`** sparingly; feature UI in **`src/components/`**.
+- **Styling**: Tailwind + CSS variables in **`src/app/globals.css`** (`glass`, `surface-*`, sidebar/player vars — match existing patterns).
+
+## Routing
+
+- Register routes as **`src/app/**/page.tsx`** segments; keep **`AppSidebar`** links in sync with `/app` children.
+
+## Tests and selectors
+
+- **Vitest**: colocate `*.test.ts` / `*.test.tsx` or under `src/lib/`.
+- **Playwright E2E**: prefer stable **`data-testid`** on interactive or page-scoped regions (see `docs/TEST-PLAN.md`). Avoid English-only copy matchers if the UI is localized.
+
+## Change discipline
+
+- Keep diffs focused on the task; avoid drive-by refactors and unrelated files.

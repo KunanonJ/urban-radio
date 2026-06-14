@@ -1,0 +1,69 @@
+# Anything that doesn't belong in the Railway image.
+# Order doesn't matter — Docker uses each line as a glob.
+
+# Source control
+.git
+.gitignore
+.gitattributes
+
+# Local environment + secrets
+.env
+.env.local
+.env.*.local
+.dev.vars
+.dev.vars.local
+
+# Dependency / build outputs (rebuilt in the `deps`/`builder` stages)
+node_modules
+.next
+out
+dist
+build
+coverage
+.cache
+.swc
+.turbo
+.parcel-cache
+
+# Tooling configs the runtime image doesn't need
+.vscode
+.idea
+.cursor
+.claude
+
+# Test / dev artifacts
+e2e
+playwright-report
+test-results
+*.tsbuildinfo
+.tsbuildinfo
+
+# Local data
+*.sqlite
+*.sqlite3
+*.db
+data/
+.wrangler
+
+# Docs (image stays lean; docs travel with the repo, not the deployment)
+docs
+*.md
+!README.md
+
+# CI / OS noise
+.github
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# The Cloudflare side stays in the repo but does not deploy to Railway.
+functions
+migrations
+wrangler.toml
+firebase.json
+firestore.rules
+firestore.indexes.json
+storage.rules

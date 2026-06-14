@@ -1,0 +1,13 @@
+# Firebase App Hosting (Next.js)
+# https://firebase.google.com/docs/app-hosting/configure
+#
+# Firebase injects FIREBASE_WEBAPP_CONFIG at build for this backend (web app linked).
+# Override or add secrets in console: App Hosting → urban-radio-web → Environment.
+# Console env vars take precedence over this file.
+
+runConfig:
+  minInstances: 0
+  maxInstances: 20
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 1024

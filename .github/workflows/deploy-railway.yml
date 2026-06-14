@@ -1,0 +1,35 @@
+# Auto-deploy to Railway on push to main.
+# All inputs come from repo secrets/vars — no untrusted external data is interpolated.
+# See docs/GIT-AND-CI-SETUP.md for the alternative Railway GitHub-integration path.
+
+name: deploy-railway
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Opt-in: only deploy via this workflow when the repo variable is set.
+    # Leave unset to use Railway's built-in GitHub integration instead.
+    if: ${{ vars.RAILWAY_DEPLOY_VIA_TOKEN == 'true' }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: |
+          curl -fsSL https://railway.com/install.sh | sh
+          echo "$HOME/.railway/bin" >> "$GITHUB_PATH"
+
+      - name: Deploy
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          RAILWAY_SERVICE_NAME: ${{ secrets.RAILWAY_SERVICE_NAME }}
+        run: |
+          railway link --project "$RAILWAY_PROJECT_ID"
+          railway up --service "$RAILWAY_SERVICE_NAME" --ci

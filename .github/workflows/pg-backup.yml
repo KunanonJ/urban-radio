@@ -1,0 +1,42 @@
+# Daily Postgres backup to S3-compatible bucket.
+# All inputs come from repository secrets — no untrusted external data.
+name: pg-backup
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install pg client (for pg_dump)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client-16
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install deps
+        run: npm install --no-audit --no-fund --prefer-offline
+
+      - name: Run backup
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          STORAGE_ENDPOINT_URL: ${{ secrets.STORAGE_ENDPOINT_URL }}
+          STORAGE_BUCKET: ${{ secrets.STORAGE_BUCKET }}
+          STORAGE_ACCESS_KEY_ID: ${{ secrets.STORAGE_ACCESS_KEY_ID }}
+          STORAGE_SECRET_ACCESS_KEY: ${{ secrets.STORAGE_SECRET_ACCESS_KEY }}
+          STORAGE_REGION: ${{ secrets.STORAGE_REGION }}
+          BACKUP_PREFIX: ${{ secrets.BACKUP_PREFIX }}
+          BACKUP_RETENTION_DAYS: ${{ secrets.BACKUP_RETENTION_DAYS }}
+        run: npm run backup:pg

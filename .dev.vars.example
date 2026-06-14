@@ -1,0 +1,38 @@
+# Copy to .dev.vars for local Pages Functions secrets (not committed).
+# wrangler pages dev loads .dev.vars automatically.
+#
+# Workers Builds / CI: set CLOUDFLARE_API_TOKEN in the Cloudflare project (not in this file).
+# See docs/CLOUDFLARE_WORKERS_BUILDS.md — token needs Account → Cloudflare Pages → Edit.
+#
+# UAT / local API: run `npm run db:migrate:local` once, then `npm run pages:dev`
+# (Vite on 8080 proxies /api to wrangler on 8788 — see vite.config.ts).
+#
+# Optional — Cloudflare Access JWT enforcement on /api/* (omit for local open APIs):
+# ACCESS_TEAM_DOMAIN=https://yourteam.cloudflareaccess.com
+# ACCESS_POLICY_AUD=<application_audience_tag_from_zero_trust>
+#
+# App login (username/password) — HS256 secret for session cookie + Bearer JWT; enables /api protection when set:
+# AUTH_JWT_SECRET=generate-a-long-random-string
+#
+# EXAMPLE_SECRET=dev-only-value
+
+# Phase 8 production hardening — set these in the CF Pages dashboard for production.
+# Each integration is a NO-OP without its credential; setting the var activates it.
+# See docs/PRODUCTION-RUNBOOK.md for the operational playbook.
+#
+# Stripe webhook signing secret (starts with `whsec_…`, copy from Stripe → Webhooks → endpoint detail).
+# When unset, POST /api/webhooks/stripe responds 503 stripe_not_configured.
+# STRIPE_WEBHOOK_SECRET=
+#
+# Server-side Sentry DSN. When unset, captureError() logs to console.
+# SENTRY_DSN=
+#
+# R2 bucket name for D1 SQL dumps from scripts/backup-d1-to-r2.mjs. Falls back to
+# MEDIA_BUCKET name from wrangler.toml with a warning if unset.
+# BACKUP_BUCKET=
+
+# --- Railway migration (Wave RM-α onwards) ---
+# Postgres connection string for the Next.js / Drizzle path. Cloudflare Pages
+# Functions ignore this; it is read by src/db/client.ts on the Node side.
+# Defaults match docker-compose.dev.yml for local dev. See docs/RAILWAY-KICKOFF.md.
+# DATABASE_URL=postgresql://sonic:sonic@localhost:5432/sonic_bloom_dev

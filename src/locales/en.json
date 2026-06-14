@@ -1,0 +1,1133 @@
+{
+  "language": {
+    "label": "Language",
+    "names": {
+      "en": "English",
+      "th": "ไทย (Thai)"
+    },
+    "switcherAria": "Change language"
+  },
+  "nav": {
+    "stationDashboard": "Station dashboard",
+    "home": "Home",
+    "search": "Search",
+    "queue": "Queue",
+    "nowPlaying": "Now playing",
+    "automation": "Automation",
+    "cart": "Cart",
+    "broadcast": "Broadcast",
+    "spotSchedule": "Ad breaks & timing",
+    "library": "Music library",
+    "recentlyAdded": "Recently added",
+    "tracks": "Tracks",
+    "albums": "Albums",
+    "artists": "Artists",
+    "playlists": "Playlists",
+    "generator": "Playlist generator",
+    "settings": "Settings",
+    "howToUse": "How to use",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar to icons only",
+    "iconsOnly": "Icons only",
+    "sectionStation": "Station",
+    "sectionPlayback": "Playback",
+    "sectionLibrary": "Library",
+    "sectionSpots": "Spots & breaks",
+    "sectionTools": "Tools",
+    "sectionHelp": "Help"
+  },
+  "layout": {
+    "appName": "Urban Radio",
+    "searchPlaceholder": "Search...",
+    "searchKbd": "⌘K",
+    "openMenu": "Open menu",
+    "menuTitle": "Navigation"
+  },
+  "auth": {
+    "title": "Sign in",
+    "subtitle": "Enter your station credentials",
+    "username": "Username",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "signOut": "Sign out",
+    "loginFailed": "Login failed",
+    "backHome": "Back to home",
+    "notRequired": "Password login is not enabled for this build.",
+    "goToApp": "Go to app",
+    "serverNotConfigured": "The server has no AUTH_JWT_SECRET. Add it (and run the auth migration) to enable login, or disable NEXT_PUBLIC_REQUIRE_AUTH for local dev."
+  },
+  "player": {
+    "crossfadeTitle": "Crossfade (requires both tracks to have audio URLs; disabled while shuffle is on)"
+  },
+  "playback": {
+    "recovery": {
+      "offline": "You are offline. Playback will resume when you are back online.",
+      "recovering": "Connection issue — trying to resume playback…",
+      "failed": "Could not resume playback. Try skipping or playing again.",
+      "backOnline": "Back online.",
+      "resumeFromSession": "Resuming your last session."
+    }
+  },
+  "globalSearch": {
+    "inputPlaceholder": "Search songs, ad breaks, albums…",
+    "quickLinks": "Quick Links",
+    "topResults": "Top results",
+    "noMatches": "No matching songs or ad breaks",
+    "searchPage": "Search Page",
+    "allTracks": "All Tracks",
+    "allAlbums": "All Albums",
+    "spotSchedule": "Ad breaks & timing",
+    "tracks": "Tracks",
+    "albums": "Albums",
+    "footerHint": "Navigate with ↑↓ · Select with ↵",
+    "esc": "ESC"
+  },
+  "home": {
+    "greeting": "Good evening",
+    "subtitle": "Pick up where you left off",
+    "stats": {
+      "hoursListened": "Hours Listened",
+      "tracksPlayed": "Tracks Played",
+      "artistsDiscovered": "Artists Discovered",
+      "activeSources": "Active Sources"
+    },
+    "listeningActivity": "Listening Activity",
+    "recentlyPlayed": "Recently Played",
+    "yourPlaylists": "Your Playlists",
+    "favoriteAlbums": "Favorite Albums",
+    "topArtists": "Top Artists",
+    "days": {
+      "Mon": "Mon",
+      "Tue": "Tue",
+      "Wed": "Wed",
+      "Thu": "Thu",
+      "Fri": "Fri",
+      "Sat": "Sat",
+      "Sun": "Sun"
+    }
+  },
+  "dashboard": {
+    "title": "Station dashboard",
+    "subtitle": "See what's on air, what's next, and whether spots and library look healthy — built for radio managers.",
+    "nowPlaying": "Now playing",
+    "nothingPlaying": "Nothing playing — start the queue or pick a track.",
+    "upNext": "Up next",
+    "noUpNext": "No next track in queue",
+    "libraryTitle": "Music library",
+    "libraryTracks": "{{count}} tracks in library",
+    "spotsTitle": "Ad breaks",
+    "spotsSummary": "{{enabled}} of {{total}} rules on",
+    "spotsNone": "No spot rules yet",
+    "nextBreak": "Next scheduled break",
+    "nextBreakAt": "Next scheduled break: {{time}}",
+    "noBreakScheduled": "No upcoming break (check rules or enable one)",
+    "alerts": "Needs attention",
+    "alertNoSpots": "You have no spot rules — scheduled ads won't run.",
+    "alertEmptyLibrary": "Library is empty — add or upload tracks before going live.",
+    "quickLinks": "Shortcuts",
+    "openLibrary": "Browse tracks",
+    "openSpots": "Ad breaks & timing",
+    "openHowTo": "How to use",
+    "queuePreview": "Queue preview",
+    "queueViewList": "List",
+    "queueViewGantt": "Gantt chart",
+    "ganttTimelineScale": "Timeline scale",
+    "ganttScaleDay": "Day",
+    "ganttScaleWeek": "Week",
+    "ganttScaleMonth": "Month",
+    "ganttScaleQuarter": "Quarter",
+    "ganttToday": "Today",
+    "ganttNavPrev": "Previous range",
+    "ganttNavNext": "Next range",
+    "ganttColTrack": "Track",
+    "ganttColStatus": "Status",
+    "ganttStatusPlaying": "Playing",
+    "ganttStatusUpNext": "Up next",
+    "ganttStatusQueued": "Queued",
+    "ganttAxisQueued": "~{{time}} queued",
+    "ganttScaledHint": "Queue scaled to fit this timeline",
+    "ganttNow": "Now",
+    "ganttScrollableTimeline": "Scrollable queue timeline",
+    "ganttStartsIn": "Starts in {{time}}",
+    "ganttTotalWindow": "Preview window · {{time}}",
+    "tracksInQueue": "{{count}} tracks in queue",
+    "tracksAheadInQueue": "{{count}} tracks from here",
+    "approxLeft": "~{{time}} left"
+  },
+  "landing": {
+    "launchApp": "Launch App",
+    "badge": "Your music, unified",
+    "heroLine1": "One player for",
+    "heroLine2": "all your music",
+    "heroSubtitle": "Connect every music source you love. Browse, search, and play from Plex, Spotify, Apple Music, and more — all in one premium desktop experience.",
+    "openApp": "Open Urban Radio",
+    "learnMore": "Learn More",
+    "appPreview": "App Preview",
+    "featuresTitle": "Built for music lovers",
+    "features": {
+      "multiSource": {
+        "title": "Multi-Source",
+        "desc": "Connect Plex, Spotify, Apple Music, YouTube, and more in one player."
+      },
+      "unifiedLibrary": {
+        "title": "Unified Library",
+        "desc": "Browse all your music from every source in a single, beautiful interface."
+      },
+      "smartQueue": {
+        "title": "Smart Queue",
+        "desc": "Seamless queue management across all your connected sources."
+      },
+      "fast": {
+        "title": "Lightning Fast",
+        "desc": "Built for speed with instant search, smooth transitions, and zero lag."
+      }
+    },
+    "sourcesTitle": "Connect your sources",
+    "sourcesSubtitle": "All your music libraries, one unified experience.",
+    "ctaTitle": "Ready to play?",
+    "ctaSubtitle": "Start listening across all your sources in seconds.",
+    "ctaButton": "Launch Urban Radio",
+    "footerCopyright": "© 2026 Urban Radio. All rights reserved."
+  },
+  "notFound": {
+    "title": "404",
+    "message": "Oops! Page not found",
+    "returnHome": "Return to Home"
+  },
+  "settings": {
+    "title": "Settings",
+    "integrations": "Integrations",
+    "playbackNav": "Playback",
+    "appearance": "Appearance",
+    "musicSources": "Music Sources",
+    "comingSoon": "Coming soon",
+    "integrationsMock": "Connect is a mock OAuth flow — status is stored locally for UI demos. Apple Music, Spotify, Plex, and YouTube Music are coming soon.",
+    "status": {
+      "connected": "{{count}} tracks · Synced {{when}}",
+      "notConnected": "Not connected",
+      "expired": "Session expired — reconnect required",
+      "syncing": "Syncing... {{count}} tracks",
+      "error": "Connection error"
+    },
+    "actions": {
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "reconnect": "Reconnect",
+      "cancel": "Cancel",
+      "retry": "Retry"
+    },
+    "appearanceTitle": "Appearance",
+    "theme": "Theme",
+    "accent": "Accent color",
+    "languageSection": "Language",
+    "languageHint": "Choose English or Thai. Thai is the default for this app.",
+    "themes": {
+      "day": "Day",
+      "dark": "Night",
+      "midnight": "Midnight",
+      "oled": "OLED",
+      "system": "System"
+    },
+    "accents": {
+      "green": "Green",
+      "cyan": "Cyan",
+      "violet": "Violet",
+      "amber": "Amber"
+    },
+    "playback": {
+      "title": "Playback",
+      "intro": "Crossfade uses your existing player settings. Other options are saved in this browser; full DSP and lossless delivery require future engine work.",
+      "autoResumePlayback": "Auto-resume after reconnect",
+      "autoResumePlaybackHint": "When on, playback tries to continue after a network drop or when you reopen the app. Saved in this browser.",
+      "sectionTransitions": "Song transitions",
+      "songTransitions": "Song transitions",
+      "songTransitionsHint": "Blend the end of one track into the next when both have audio URLs and shuffle is off.",
+      "transitionStyle": "Transition style",
+      "styleCrossfade": "Crossfade",
+      "styleAutomix": "AutoMix",
+      "automixSoon": "AutoMix-style beat-matched transitions are not available yet.",
+      "crossfadeDuration": "Crossfade duration",
+      "crossfadeHint": "Requires both the current and next tracks to expose a playable URL. Disabled while shuffle is on.",
+      "sectionEnhancement": "Audio enhancement",
+      "soundCheck": "Sound Check",
+      "soundCheckHint": "Evens out perceived loudness between tracks when implemented in the audio engine.",
+      "soundEnhancer": "Sound Enhancer",
+      "soundEnhancerHint": "Broad EQ-style coloration (coming soon).",
+      "enhancerLow": "Low",
+      "enhancerHigh": "High",
+      "sectionLossless": "Lossless audio",
+      "enableLossless": "Enable lossless audio",
+      "losslessHint": "Preferences are stored locally. Streaming and download codecs are not wired to a real catalog yet.",
+      "streamingQuality": "Streaming",
+      "downloadQuality": "Download",
+      "qualityAac256": "High quality (AAC 256 kbps)",
+      "qualityAlac": "Lossless (ALAC)",
+      "qualityOff": "Off",
+      "sectionSpatial": "Spatial audio",
+      "dolbyAtmos": "Dolby Atmos",
+      "spatialAuto": "Automatic",
+      "spatialOff": "Off",
+      "spatialAlways": "On",
+      "hdmiPassthrough": "HDMI passthrough",
+      "hdmiOff": "Off",
+      "hdmiOn": "On",
+      "hdmiAuto": "Automatic",
+      "sectionVideo": "Video quality",
+      "videoQuality": "Video quality",
+      "videoAuto": "Automatic",
+      "video720": "720p",
+      "video1080": "1080p",
+      "videoHint": "For music videos or visualizers when a video pipeline exists."
+    },
+    "sections": {
+      "station": "Station",
+      "streams": "Streams",
+      "talent": "Talent",
+      "integrations": "Integrations",
+      "imaging": "Imaging",
+      "compliance": "Compliance",
+      "audio": "Audio",
+      "billing": "Billing",
+      "playback": "Playback",
+      "appearance": "Appearance"
+    },
+    "sectionDescriptions": {
+      "station": "Station identity — name, slug, timezone, language, brand color.",
+      "streams": "Encoders, mount points, and the live On Air switch.",
+      "talent": "Hosts, producers, and per-user roles.",
+      "integrations": "Music sources, cloud upload, and OAuth connections.",
+      "imaging": "Cart wall defaults and the hotkey legend.",
+      "compliance": "Royalty reporting and the activity audit log.",
+      "audio": "Loudness target and the processing chain.",
+      "billing": "Plans, invoices, and Stripe payment methods.",
+      "playback": "Crossfade, lossless, and spatial audio preferences.",
+      "appearance": "Theme, accent, and language."
+    },
+    "notFound": {
+      "title": "Settings page not found",
+      "description": "We could not find that settings section. Pick another from the left rail."
+    },
+    "station": {
+      "title": "Station identity",
+      "name": "Station name",
+      "namePlaceholder": "e.g. Urban Radio",
+      "slug": "Slug",
+      "timezone": "Timezone",
+      "language": "Default language",
+      "color": "Brand color",
+      "save": "Save changes",
+      "saved": "Station identity saved.",
+      "saveSuccess": "Station identity saved",
+      "saveError": "Could not save: {{error}}"
+    },
+    "streams": {
+      "title": "Streams",
+      "encoder": "Demo encoder",
+      "onAir": "On air",
+      "onAirYes": "Live",
+      "onAirNo": "Off",
+      "status": "Status",
+      "mount": "Mount point",
+      "manage": "Manage on the broadcast page"
+    },
+    "talent": {
+      "title": "Talent",
+      "emptyTitle": "User management coming with multi-station rollout",
+      "emptyDescription": "Hosts, producers, and per-user roles will land alongside the multi-station rollout."
+    },
+    "imaging": {
+      "title": "Imaging",
+      "hotkeysTitle": "Cart wall hotkey legend",
+      "hotkeys": {
+        "row1Hint": "Top row",
+        "row2Hint": "Home row"
+      },
+      "manage": "Manage cart wall"
+    },
+    "compliance": {
+      "title": "Compliance",
+      "royaltyTitle": "Royalty reporting",
+      "royaltyDescription": "Export ASCAP, BMI, and SoundExchange royalty reports.",
+      "openRoyaltyReports": "Open royalty reports",
+      "auditTitle": "Audit log",
+      "auditDescription": "Every change to clocks, schedules, and library is logged.",
+      "openAuditLog": "Open audit log"
+    },
+    "audio": {
+      "title": "Audio processing",
+      "emptyTitle": "Audio processing controls coming in Phase 8",
+      "emptyDescription": "Loudness target, multi-band compression, and limiter controls land in Phase 8."
+    },
+    "billing": {
+      "title": "Billing",
+      "emptyTitle": "Billing integration via Stripe coming in Phase 8",
+      "emptyDescription": "Plans, invoices, and payment methods will use Stripe Billing in Phase 8."
+    }
+  },
+  "queue": {
+    "title": "Queue",
+    "oneTrack": "{{count}} track",
+    "nTracks": "{{count}} tracks",
+    "playingTimeLeftSuffix": "playing time left",
+    "reorderHint": "Drag the grip to reorder. Turn off shuffle to rearrange the queue.",
+    "dragHandle": "Drag to reorder",
+    "shuffleReorderHint": "Shuffle is on — turn it off in the player bar to reorder the queue.",
+    "played": "Played",
+    "nowPlaying": "Now Playing",
+    "upNext": "Up Next",
+    "upNextHint": "Start times are local · estimated from the current track position",
+    "empty": "Queue is empty. Add some tracks!",
+    "noUpNext": "No more tracks up next.",
+    "headers": {
+      "number": "#",
+      "title": "Title",
+      "album": "Album",
+      "start": "Start",
+      "startsIn": "Starts in",
+      "time": "Time",
+      "now": "Now"
+    }
+  },
+  "recentlyAdded": {
+    "title": "Recently added",
+    "intro": "Albums in your library, sorted by when they were added. Use search to narrow this list.",
+    "findLabel": "Find in Recently added",
+    "searchPlaceholder": "Search albums, artists…",
+    "emptyLibrary": "No albums with dates yet.",
+    "emptyFiltered": "No albums match your search.",
+    "buckets": {
+      "yesterday": "Yesterday",
+      "thisWeek": "This week",
+      "thisMonth": "This month",
+      "earlier": "Earlier"
+    }
+  },
+  "tracks": {
+    "title": "Tracks",
+    "count": "{{count}} tracks",
+    "intro": "Search, filter, and select tracks for your station. Double-click a row to play.",
+    "searchPlaceholder": "Search by title, artist, or album…",
+    "filterGenre": "Genre",
+    "allGenres": "All genres",
+    "sortBy": "Sort",
+    "sortTitle": "Title",
+    "sortArtist": "Artist",
+    "sortDuration": "Duration",
+    "selectMode": "Select",
+    "doneSelecting": "Done",
+    "selectedCount": "{{count}} selected",
+    "selectAll": "Select all",
+    "clearSelection": "Clear",
+    "addToQueue": "Add to queue",
+    "addedToQueue": "Added {{count}} track(s) to queue",
+    "emptyFiltered": "No tracks match your filters. Try another search or genre.",
+    "emptyLibrary": "No tracks in the library yet."
+  },
+  "trackActions": {
+    "openMenu": "Open actions for {{title}}",
+    "playNow": "Play now",
+    "playNext": "Play next",
+    "goToAlbum": "Go to album",
+    "goToArtist": "Go to artist",
+    "queuedTrack": "Added “{{title}}” to queue",
+    "willPlayNext": "“{{title}}” will play next"
+  },
+  "albums": {
+    "title": "Albums",
+    "count": "{{count}} albums"
+  },
+  "albumDetail": {
+    "kind": "Album",
+    "play": "Play",
+    "shuffle": "Shuffle",
+    "moreBy": "More by {{artist}}"
+  },
+  "artists": {
+    "title": "Artists"
+  },
+  "playlists": {
+    "title": "Playlists",
+    "newPlaylist": "New Playlist"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "What do you want to listen to?",
+    "emptyHint": "Search for songs, albums, artists, playlists, or ad-break rules",
+    "noResults": "No results for \"{{query}}\"",
+    "sectionAll": "Songs & ad breaks",
+    "sectionTracks": "Tracks",
+    "sectionAlbums": "Albums",
+    "sectionArtists": "Artists",
+    "sectionPlaylists": "Playlists",
+    "columnTitle": "Title",
+    "columnAlbum": "Album / kind",
+    "columnTime": "Time",
+    "columnArtwork": "Artwork",
+    "columnActions": "Actions",
+    "spotBadge": "Ad break",
+    "spotColumnKind": "Ad break",
+    "openSpotSchedule": "Open ad breaks & timing"
+  },
+  "cart": {
+    "title": "Cart",
+    "intro": "Assign tracks to instant-play slots for live assist. Keys",
+    "introKeys": "1",
+    "introKeys2": "9",
+    "introEnd": "fire slots 1–9 when focus is not in a text field.",
+    "hotkeysGlobal": "Hotkeys are global in the app shell.",
+    "slot": "Slot {{n}}",
+    "keyHint": "(key {{key}})",
+    "empty": "Empty — assign a track below.",
+    "assignPlaceholder": "Assign track…",
+    "playSlot": "Play slot {{n}}",
+    "clearSlot": "Clear slot {{n}}"
+  },
+  "cartWall": {
+    "title": "Cart wall",
+    "subtitle": "Touch + hotkey board for jingles, sweepers, beds and one-shots.",
+    "newTab": "New tab",
+    "renameTab": "Rename tab",
+    "deleteTab": "Delete tab",
+    "resizeTab": "Resize",
+    "auditionMode": "Audition mode",
+    "auditionHint": "Audition plays slots locally without going on air.",
+    "gridSize": "Grid size",
+    "cols": "Columns",
+    "rows": "Rows",
+    "hotkeyHint": "Press the highlighted key to fire a slot.",
+    "assignSlot": "Assign track to slot {{n}}",
+    "emptyState": {
+      "title": "Cart wall is empty",
+      "description": "Drag tracks from the library into a slot, or assign via the track action menu.",
+      "action": "Open library"
+    }
+  },
+  "broadcast": {
+    "title": "Broadcast",
+    "intro": "Mock encoder + metadata for OBS, Icecast-style tools, or downstream automation. No real stream is created in the browser — connect a real encoder to your mount in production.",
+    "demoBadge": "Demo mode",
+    "demoNotice": "Demo mode — toggling the switch below does NOT broadcast. Configure NEXT_PUBLIC_ENCODER_URL to wire a real encoder.",
+    "onAir": "On air",
+    "onAirDemo": "Demo on air (no stream)",
+    "encoder": "Encoder",
+    "mountLabel": "Stream mount (display)",
+    "metadataTemplate": "Metadata template",
+    "placeholderHint": "Use title, artist, and album as placeholders in the template field above.",
+    "livePreview": "Live preview",
+    "lastPushed": "Last pushed line:",
+    "copyMetadata": "Copy metadata line",
+    "tip": "Tip: pair this with OBS “Text (GDI+)” or a browser dock polling your future `/api/now-playing` endpoint. Today, clipboard + manual wiring is enough to validate your workflow.",
+    "clipboardError": "Clipboard unavailable",
+    "encoderLabel": "Encoder: {{status}}",
+    "encoderLabelDemo": "Encoder (demo): {{status}}",
+    "encoderStates": {
+      "idle": "idle",
+      "connecting": "connecting",
+      "streaming": "streaming",
+      "error": "error"
+    }
+  },
+  "automation": {
+    "title": "Automation",
+    "intro": "Schedule local-time actions for playback. Times use your device clock (24-hour format). Leave all weekdays selected for “every day”, or pick specific days.",
+    "time": "Time (HH:MM)",
+    "action": "Action",
+    "actionPause": "Pause playback",
+    "actionResume": "Resume playback",
+    "labelOptional": "Label (optional)",
+    "labelPlaceholder": "e.g. Overnight break",
+    "days": "Days",
+    "runsEveryDay": "Runs every day of the week.",
+    "runsSelected": "Runs only on selected weekdays.",
+    "addSchedule": "Add schedule",
+    "scheduledEvents": "Scheduled events",
+    "noEvents": "No events yet. Add a time above.",
+    "everyDay": "Every day",
+    "defaultPause": "Pause",
+    "defaultResume": "Resume",
+    "weekdays": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "removeAria": "Remove {{label}}"
+  },
+  "playlistGenerator": {
+    "title": "Playlist generator",
+    "intro": "Build a rotation-ordered list from your library (by genre bucket), up to a target duration. Load it into the queue to play or preview in the player.",
+    "targetLength": "Target length",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "breakEvery": "Station break every (minutes)",
+    "breakHint": "0 = off. Inserts a short break track after enough music accumulates.",
+    "targetSummary": "Target ≈ {{target}} · generated {{generated}} from {{count}} tracks",
+    "rotationTitle": "Genre rotation order",
+    "rotationHint": "Toggle genres to include. Reorder with arrows (first bucket fires first, then repeats).",
+    "selectGenre": "Select at least one genre.",
+    "loadQueue": "Load into queue & play",
+    "preview": "Preview",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "genreOther": "Other"
+  },
+  "cloudUpload": {
+    "title": "Cloud library",
+    "descEmpty": "Upload audio from this computer — files are sent to the edge API and appear in your library.",
+    "descWithCount": "{{count}} tracks in cloud · {{sync}}",
+    "noUploadsYet": "No uploads yet",
+    "lastUpload": "Last upload {{time}}",
+    "dropTitle": "Drop audio files here",
+    "dropSubtitle": "or choose files from your computer",
+    "uploading": "Uploading…",
+    "chooseFiles": "Choose files",
+    "uploadedSection": "Uploaded",
+    "removedToast": "Removed from cloud library",
+    "toast": {
+      "alreadyInLibrary": "Already in your library",
+      "duplicatesSkipped": "{{count}} duplicate files skipped",
+      "uploadedOne": "Uploaded “{{title}}” to your cloud library",
+      "uploadedMany": "{{count}} files uploaded to your cloud library",
+      "skippedLine": "{{count}} duplicate skipped",
+      "skippedLinePlural": "{{count}} duplicates skipped",
+      "uploadFailed": "Upload failed"
+    }
+  },
+  "spotSchedule": {
+    "title": "Ad breaks & timing",
+    "intro": "Choose when short ads, IDs, or promos play between songs. Times use your computer’s clock. Keep this page open while you’re on air — there is no cloud scheduler in this demo.",
+    "addRule": "Add rule",
+    "quickTemplates": "Quick start",
+    "quickTemplatesHint": "Add a new rule from a common pattern. You can edit and save after.",
+    "presetHourly": "Hourly (:00)",
+    "presetHourlyHalf": "Hour & half (:00 & :30)",
+    "presetWeekdays": "Weekdays only",
+    "presetMorningDrive": "Morning drive (6–10 AM, weekdays)",
+    "presetOpenHours": "Open hours (6 AM–10 PM, daily)",
+    "applyPreset": "Apply template to draft",
+    "sectionWhen": "1 · When it runs",
+    "sectionWhat": "2 · What plays",
+    "sectionHow": "3 · How it joins the queue",
+    "sectionPreview": "Preview · Next times",
+    "daypartTitle": "Daypart (optional)",
+    "daypartDesc": "Limit breaks to part of the day. Leave closed for 24 hours.",
+    "rulesListTitle": "Your rules",
+    "ruleSummaryEnabled": "On",
+    "ruleSummaryDisabled": "Off",
+    "ruleSummaryNext": "Next: {{time}}",
+    "ruleSummaryNoNext": "No upcoming time",
+    "empty": "No rules yet. Use a quick template or add a rule to play spots at set times (e.g. :00 and :30).",
+    "defaultRuleName": "Hourly spots",
+    "ruleName": "Rule name",
+    "enabled": "Enabled",
+    "minutesPastHour": "Minutes past the hour",
+    "minutesHint": "Select one or more. Example: :00 and :30 for hourly and mid-hour breaks.",
+    "minutePreset": {
+      "0": ":00",
+      "15": ":15",
+      "30": ":30",
+      "45": ":45"
+    },
+    "days": "Days",
+    "everyDay": "Runs every day (all weekdays selected).",
+    "selectedDays": "Runs only on highlighted weekdays.",
+    "windowStart": "Active from",
+    "windowEnd": "Active until",
+    "windowHint": "Leave both empty for 24h. Times are local, 24-hour clock.",
+    "insertMode": "When the spot fires",
+    "playNext": "Play next (after current track)",
+    "addToEnd": "Add to end of queue",
+    "tracks": "Spot pool (rotation)",
+    "nextRuns": "Next scheduled times (preview)",
+    "noUpcoming": "No upcoming times in the next stretch — check minutes, days, or daypart.",
+    "testFire": "Test now",
+    "testOk": "Spot inserted.",
+    "testFail": "Could not fire this rule.",
+    "errNoTracks": "Select at least one track in the pool.",
+    "errMissingTrack": "A track ID is missing from your library.",
+    "deleteRule": "Delete rule",
+    "save": "Save",
+    "saved": "Rule saved",
+    "saveBeforeTest": "Save changes before testing",
+    "discardChanges": "Discard changes",
+    "toastFired": "Spot: “{{title}}” ({{name}})",
+    "disclaimer": "Spots enqueue in this browser session only. For 24/7 unattended play you’ll need a backend or playout system."
+  },
+  "howToUse": {
+    "title": "How to use",
+    "intro": "Quick reference for Urban Radio: navigation, playback, library, and broadcast-style tools. Data in this demo is local or mock unless you connect cloud uploads or APIs.",
+    "sectionNav": {
+      "title": "Navigation & search",
+      "items": [
+        "The sidebar is grouped for stations: Station dashboard, Playback, Music library, Spots & breaks, Tools (automation, cart, broadcast, generator), and Help.",
+        "Press ⌘K (Mac) or the search field in the header to open quick search.",
+        "Collapse the sidebar with the chevron at the bottom for more room."
+      ]
+    },
+    "sectionPlayer": {
+      "title": "Player & queue",
+      "items": [
+        "The player bar controls play/pause, skip, volume, repeat, shuffle, and optional crossfade when tracks have audio URLs.",
+        "Open Queue to reorder or remove items. Cart assigns instant-play slots for live assist (hotkeys when not typing in a field).",
+        "Playlist Generator builds a rotation by genre up to a target length, then can load the result into the queue."
+      ]
+    },
+    "sectionLibrary": {
+      "title": "Library",
+      "items": [
+        "Recently added groups albums by when they entered the library (yesterday, this week, this month, earlier). Cloud uploads roll up into a Cloud library album.",
+        "Browse Tracks, Albums, Artists, and Playlists from the Library section.",
+        "Cloud uploads (if configured) appear alongside mock tracks in the library lists.",
+        "Use Search to filter across tracks, albums, and artists."
+      ]
+    },
+    "sectionRadio": {
+      "title": "Automation & broadcast",
+      "items": [
+        "Automation schedules pause/resume at local times on selected weekdays.",
+        "Broadcast shows a mock encoder line and metadata template for tools like OBS; there is no real stream in the browser.",
+        "Ad breaks & timing inserts chosen spots into the queue on the clock (e.g. :00 and :30). Keep the app open while you need it to run. Use Settings → Appearance for language (English / Thai)."
+      ]
+    },
+    "sectionTips": {
+      "title": "Tips",
+      "items": [
+        "Language and theme live under Settings → Appearance.",
+        "Spot rules and automation are stored in this browser (local storage)."
+      ]
+    }
+  },
+  "common": {
+    "recently": "recently"
+  },
+  "commandPalette": {
+    "title": "Command palette",
+    "placeholder": "Type a command or search…",
+    "noResults": "No matching commands",
+    "go": {
+      "library": "Go to Library",
+      "clocks": "Go to Hour Clocks",
+      "schedule": "Go to Schedule",
+      "liveStudio": "Go to Live Studio",
+      "voiceTracks": "Go to Voice Tracks",
+      "reports": "Go to Reports",
+      "auditLog": "Go to Activity Log",
+      "queue": "Go to Queue",
+      "search": "Go to Search",
+      "nowPlaying": "Go to Now Playing",
+      "cart": "Go to Cart Wall",
+      "broadcast": "Go to Broadcast",
+      "spotSchedule": "Go to Spot Schedule",
+      "settings": "Go to Settings"
+    }
+  },
+  "clocks": {
+    "title": "Hour clocks",
+    "subtitle": "Define a 60-minute template once. Drop it on the schedule.",
+    "newClock": "New clock",
+    "createCta": "Create your first hour clock",
+    "untitledClock": "Untitled clock",
+    "totalDuration": "Total: {{minutes}} min",
+    "saved": "Saved",
+    "dirty": "Unsaved changes",
+    "save": "Save",
+    "discard": "Discard",
+    "delete": "Delete clock",
+    "deleteConfirm": "Delete this clock? Scheduled assignments referencing it will be removed.",
+    "slotPalette": {
+      "title": "Slot types",
+      "music": "Music",
+      "sweeper": "Sweeper",
+      "liner": "Liner",
+      "vt": "Voice track",
+      "id": "Station ID",
+      "news": "News",
+      "weather": "Weather",
+      "spot": "Spot / ad",
+      "bed": "Bed",
+      "custom": "Custom"
+    },
+    "canvasEmpty": "Drag a slot from the left to start building this hour.",
+    "preview": {
+      "title": "Live preview",
+      "estimated": "≈ {{minutes}} min of {{target}} min target",
+      "overflow": "Over target by {{minutes}} min",
+      "underflow": "Under target by {{minutes}} min"
+    },
+    "slot": {
+      "category": "Category",
+      "duration": "Duration (s)",
+      "remove": "Remove slot",
+      "noCategory": "(no category)"
+    },
+    "emptyState": {
+      "title": "No clocks yet",
+      "description": "Hour clocks define what plays each hour. Build one, then drop it on the schedule.",
+      "action": "Create clock"
+    }
+  },
+  "schedule": {
+    "title": "Schedule",
+    "subtitle": "Drop hour clocks on the weekly grid. Conflicts surface a resolution dialog.",
+    "selectClock": "Choose a clock to assign",
+    "noClocksHint": "Create an hour clock first.",
+    "createClock": "Go to clocks",
+    "weekdays": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "cell": {
+      "empty": "Empty",
+      "assigned": "{{clockName}}",
+      "click": "Click to edit",
+      "drop": "Drop here"
+    },
+    "conflict": {
+      "title": "Overlap detected",
+      "description": "A clock is already scheduled for this slot. Choose how to resolve it.",
+      "override": "Override",
+      "merge": "Keep both",
+      "cancel": "Cancel"
+    },
+    "rrule": {
+      "label": "Recurrence",
+      "none": "One-time",
+      "everyDay": "Every day",
+      "weekdays": "Weekdays (Mon–Fri)",
+      "weekends": "Weekends (Sat–Sun)",
+      "custom": "Custom RRULE"
+    },
+    "validRange": {
+      "from": "Valid from",
+      "until": "Valid until"
+    },
+    "emptyState": {
+      "title": "No schedule assignments",
+      "description": "Drop an hour clock onto a weekday/hour cell to schedule it.",
+      "action": "Browse clocks"
+    },
+    "actions": {
+      "delete": "Delete assignment",
+      "deleteConfirm": "Remove this scheduled clock?"
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Listening patterns, top tracks, and royalty exports for your station.",
+    "tabs": {
+      "overview": "Overview",
+      "trends": "Trends",
+      "geography": "Geography",
+      "milestones": "Milestones",
+      "royalty": "Royalty"
+    },
+    "range": {
+      "label": "Date range",
+      "last7": "Last 7 days",
+      "last30": "Last 30 days",
+      "last90": "Last 90 days",
+      "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "custom": "Custom…"
+    },
+    "overview": {
+      "totalPlays": "Total plays",
+      "uniqueTitles": "Unique titles",
+      "daysWithActivity": "Active days",
+      "totalListeningHours": "Listening hours"
+    },
+    "trends": {
+      "playsByDay": "Plays by day",
+      "topHours": "Top hours of day",
+      "topTracks": "Top tracks",
+      "sourceBreakdown": "By source"
+    },
+    "geography": {
+      "title": "Geography",
+      "comingSoon": "Listener geography needs IP capture. Coming once the streaming engine ships.",
+      "placeholder": "—"
+    },
+    "milestones": {
+      "title": "Milestones",
+      "comingSoon": "Milestones auto-surface peaks once you have 30 days of play data."
+    },
+    "royalty": {
+      "title": "Royalty exports",
+      "intro": "Download station play data in the columns required by each PRO. Range applies to all exports.",
+      "ascap": "ASCAP CSV",
+      "bmi": "BMI CSV",
+      "soundexchange": "SoundExchange CSV",
+      "downloadHint": "{{rows}} rows · {{from}} → {{to}}",
+      "rowCap": "10,000-row cap per export. Use shorter ranges for high-traffic stations.",
+      "exportFailed": "Export failed: {{error}}",
+      "exportCapHit": "Row cap exceeded for this range. Narrow the window and try again."
+    },
+    "empty": {
+      "title": "No data for this range",
+      "description": "Try a longer window or wait for play logs to build up."
+    }
+  },
+  "auditLog": {
+    "title": "Activity log",
+    "subtitle": "Every change to clocks, schedule, voice tracks, broadcasts, royalty exports, and AI usage.",
+    "filter": {
+      "all": "All actions",
+      "actor": "Actor",
+      "action": "Action type",
+      "target": "Target type",
+      "from": "From",
+      "to": "To",
+      "search": "Search payload"
+    },
+    "list": {
+      "at": "Time",
+      "actor": "Actor",
+      "action": "Action",
+      "target": "Target",
+      "details": "Details"
+    },
+    "exportCsv": "Export CSV",
+    "diff": {
+      "before": "Before",
+      "after": "After"
+    },
+    "empty": {
+      "title": "No activity yet",
+      "description": "Actions across the app will appear here in chronological order."
+    }
+  },
+  "voiceTracks": {
+    "title": "Voice tracks",
+    "subtitle": "Record voice tracks for breaks. AI-generate or capture from the mic.",
+    "newTrack": "New voice track",
+    "newAi": "AI generate",
+    "newRecord": "Record",
+    "status": {
+      "draft": "Draft",
+      "ready": "Ready",
+      "aired": "Aired",
+      "archived": "Archived"
+    },
+    "filter": {
+      "all": "All",
+      "drafts": "Drafts only",
+      "ready": "Ready only"
+    },
+    "recorder": {
+      "title": "Record voice track",
+      "armRecord": "Arm recording",
+      "stop": "Stop",
+      "save": "Save",
+      "discard": "Discard",
+      "saving": "Saving…",
+      "permissionDenied": "Microphone permission denied. Grant access in your browser settings.",
+      "deviceLabel": "Input device",
+      "noDevices": "No input devices detected",
+      "elapsed": "Elapsed: {{time}}",
+      "audioPreview": "Preview"
+    },
+    "aiDrawer": {
+      "title": "AI voice track",
+      "voiceLabel": "Voice",
+      "voiceScope": {
+        "cloned": "Cloned voices",
+        "stock": "Stock voices",
+        "all": "All"
+      },
+      "topicLabel": "Content topic",
+      "topic": {
+        "frontsell": "Frontsell next song",
+        "backsell": "Backsell previous song",
+        "fun_fact": "Fun fact",
+        "station_id": "Station ID",
+        "weather": "Weather report",
+        "news": "News headline",
+        "custom": "Custom prompt"
+      },
+      "toneLabel": "Tone",
+      "tone": {
+        "energetic": "Energetic",
+        "calm": "Calm",
+        "professional": "Professional",
+        "cheeky": "Cheeky",
+        "morning": "Morning"
+      },
+      "customPromptLabel": "Custom prompt",
+      "generateText": "Generate script",
+      "generateVoice": "Generate audio",
+      "scriptPreview": "Generated script",
+      "audioPreview": "Generated audio",
+      "save": "Save voice track",
+      "costEstimate": "Est. cost: {{usd}}",
+      "capHit": "Plan cap reached. Upgrade to enable AI generation."
+    },
+    "list": {
+      "title": "Title",
+      "duration": "Duration",
+      "status": "Status",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "actions": {
+      "play": "Play",
+      "edit": "Edit",
+      "markReady": "Mark ready",
+      "archive": "Archive",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this voice track?"
+    },
+    "empty": {
+      "title": "No voice tracks yet",
+      "description": "Record a voice track or generate one with AI to insert into a break.",
+      "action": "New voice track"
+    }
+  },
+  "liveStudio": {
+    "title": "Live studio",
+    "subtitle": "On-air controls: now/next/queue, mixer, voice tracking, and health.",
+    "now": "Now playing",
+    "next": "Up next",
+    "queue": "Queue",
+    "remaining": "Remaining",
+    "elapsed": "Elapsed",
+    "play": "Play",
+    "pause": "Pause",
+    "skip": "Skip",
+    "preload": "Preload next",
+    "mixer": {
+      "title": "Mixer",
+      "auto": "Auto",
+      "mic": "Mic",
+      "aux": "Aux",
+      "stream": "Stream",
+      "master": "Master",
+      "muted": "Muted",
+      "armed": "Armed",
+      "ducked": "Ducked",
+      "selectMicDevice": "Microphone input device",
+      "permissionDenied": "Microphone permission denied. Use the browser address bar to grant access.",
+      "noDevices": "No input devices detected"
+    },
+    "meters": {
+      "title": "Levels",
+      "left": "L",
+      "right": "R",
+      "peak": "PK"
+    },
+    "health": {
+      "title": "On-air health",
+      "encoderIdle": "Encoder idle",
+      "encoderConnecting": "Encoder connecting…",
+      "encoderStreaming": "On air",
+      "encoderError": "Encoder error",
+      "encoderDemo": "Demo mode",
+      "listeners": "{{count}} listening",
+      "schedulerActive": "Scheduler active",
+      "schedulerPaused": "Scheduler paused",
+      "schedulerHeartbeatStale": "Scheduler heartbeat stale"
+    },
+    "quickVT": {
+      "title": "Quick voice track",
+      "placeholderHeading": "Voice track recording lands in Phase 4",
+      "placeholderBody": "This panel will record a voice track that drops into the next break. For now, plan your VTs via the Scheduler.",
+      "recordPlaceholder": "Record (coming soon)"
+    },
+    "layout": {
+      "title": "Layout",
+      "compact": "Compact",
+      "wide": "Wide",
+      "minimal": "Minimal"
+    },
+    "emptyState": {
+      "title": "Nothing on air",
+      "description": "Start the queue or schedule a clock to bring the studio to life.",
+      "action": "Open scheduler"
+    }
+  },
+  "emptyStates": {
+    "tracks": {
+      "title": "No tracks yet",
+      "description": "Upload audio or wait for the catalog to sync.",
+      "action": "Upload tracks"
+    },
+    "albums": {
+      "title": "No albums yet",
+      "description": "Albums will appear here as your library grows."
+    },
+    "artists": {
+      "title": "No artists yet",
+      "description": "Artists will appear here as your library grows."
+    },
+    "playlists": {
+      "title": "No playlists yet",
+      "description": "Create a playlist to organise your library.",
+      "action": "Create playlist"
+    },
+    "search": {
+      "title": "No results",
+      "description": "Try a different keyword or check spelling."
+    },
+    "trackArtists": {
+      "title": "No artists to attribute",
+      "description": "Add tracks before tagging artists."
+    },
+    "artistNotFound": {
+      "title": "Artist not found",
+      "description": "This artist may have been removed or never existed.",
+      "action": "Back to artists"
+    },
+    "albumNotFound": {
+      "title": "Album not found",
+      "description": "This album may have been removed or never existed.",
+      "action": "Back to albums"
+    },
+    "playlistNotFound": {
+      "title": "Playlist not found",
+      "description": "This playlist may have been removed or never existed.",
+      "action": "Back to playlists"
+    }
+  },
+  "comments": {
+    "title": "Comments",
+    "compose": {
+      "placeholder": "Leave a comment…",
+      "submit": "Comment",
+      "charCount": "{{count}} / 2000"
+    },
+    "actions": {
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this comment?",
+      "resolve": "Mark resolved",
+      "unresolve": "Unresolve"
+    },
+    "resolved": "Resolved",
+    "resolvedBy": "by {{user}}",
+    "showResolved": "Show resolved",
+    "hideResolved": "Hide resolved",
+    "empty": {
+      "title": "No comments yet",
+      "description": "Start the conversation."
+    }
+  },
+  "presence": {
+    "avatars": {
+      "ariaLabel": "{{count}} people viewing",
+      "ariaLabel_one": "{{count}} person viewing",
+      "overflow": "+{{count}}",
+      "overflowTitle": "{{count}} more people",
+      "overflowTitle_one": "{{count}} more person"
+    }
+  }
+}

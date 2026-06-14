@@ -1,0 +1,509 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 5%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 142 72% 50%;
+    --primary-foreground: 0 0% 2%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 55%;
+
+    --accent: 270 60% 60%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 142 72% 50%;
+
+    --radius: 0.625rem;
+
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 70%;
+    --sidebar-primary: 142 72% 50%;
+    --sidebar-primary-foreground: 0 0% 2%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 142 72% 50%;
+
+    /* Extended palette */
+    --surface-0: 0 0% 5%;
+    --surface-1: 0 0% 7%;
+    --surface-2: 0 0% 10%;
+    --surface-3: 0 0% 13%;
+    --surface-glass: 0 0% 100% / 0.04;
+
+    /* Subtle borders between elevation steps — Linear/Vercel-style separation
+       without dropshadows. */
+    --surface-0-border: 0 0% 14%;
+    --surface-1-border: 0 0% 16%;
+    --surface-2-border: 0 0% 18%;
+    --surface-3-border: 0 0% 22%;
+
+    --neon-green: 142 72% 50%;
+    --neon-cyan: 187 85% 53%;
+    --neon-violet: 270 60% 60%;
+    --neon-amber: 38 92% 50%;
+
+    /* Type scale (rem). Mapped to Tailwind `fontSize` extension. */
+    --text-xs: 0.75rem;     /* 12px */
+    --text-sm: 0.875rem;    /* 14px */
+    --text-base: 1rem;      /* 16px */
+    --text-lg: 1.125rem;    /* 18px */
+    --text-xl: 1.25rem;     /* 20px */
+    --text-2xl: 1.5rem;     /* 24px */
+    --text-3xl: 1.875rem;   /* 30px */
+
+    /* Semantic line-heights for the rhythm utilities. */
+    --leading-display: 1.05;
+    --leading-heading: 1.2;
+    --leading-body: 1.55;
+    --leading-mono: 1.45;
+
+    --player-height: 5.5rem;
+    /** Total space reserved for the fixed player bar + iOS home indicator */
+    --player-bar-total: calc(var(--player-height) + env(safe-area-inset-bottom, 0px));
+    --sidebar-width: 16rem;
+  }
+
+  /* Cooler blue-gray “Midnight” (inherits primary / neon from :root) */
+  [data-ui-theme="midnight"] {
+    --background: 230 28% 6%;
+    --foreground: 220 18% 96%;
+
+    --card: 228 24% 9%;
+    --card-foreground: 220 18% 96%;
+
+    --popover: 228 24% 9%;
+    --popover-foreground: 220 18% 96%;
+
+    --secondary: 226 20% 13%;
+    --secondary-foreground: 220 15% 92%;
+
+    --muted: 226 18% 15%;
+    --muted-foreground: 220 12% 54%;
+
+    --border: 226 18% 16%;
+    --input: 226 18% 16%;
+
+    --sidebar-background: 230 26% 7%;
+    --sidebar-foreground: 220 12% 68%;
+    --sidebar-accent: 226 22% 11%;
+    --sidebar-accent-foreground: 220 15% 92%;
+    --sidebar-border: 226 18% 14%;
+
+    --surface-0: 230 28% 6%;
+    --surface-1: 228 24% 8%;
+    --surface-2: 226 22% 11%;
+    --surface-3: 224 20% 14%;
+    --surface-glass: 230 40% 100% / 0.04;
+
+    --surface-0-border: 226 18% 14%;
+    --surface-1-border: 226 18% 16%;
+    --surface-2-border: 226 18% 20%;
+    --surface-3-border: 226 18% 24%;
+  }
+
+  /* True-black OLED-style surfaces */
+  [data-ui-theme="oled"] {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 96%;
+
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 96%;
+
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 96%;
+
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 0 0% 92%;
+
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 52%;
+
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 68%;
+    --sidebar-accent: 0 0% 9%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 0 0% 12%;
+
+    --surface-0: 0 0% 0%;
+    --surface-1: 0 0% 6%;
+    --surface-2: 0 0% 9%;
+    --surface-3: 0 0% 12%;
+    --surface-glass: 0 0% 100% / 0.03;
+
+    --surface-0-border: 0 0% 10%;
+    --surface-1-border: 0 0% 14%;
+    --surface-2-border: 0 0% 18%;
+    --surface-3-border: 0 0% 22%;
+  }
+
+  /* Light “Day” mode */
+  [data-ui-theme="day"] {
+    --background: 220 20% 98%;
+    --foreground: 220 18% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 18% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 18% 11%;
+
+    --primary: 142 72% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 18% 18%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 42%;
+
+    --accent: 270 48% 48%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 46%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 14% 90%;
+    --input: 220 14% 90%;
+    --ring: 142 72% 40%;
+
+    --sidebar-background: 220 18% 97%;
+    --sidebar-foreground: 220 12% 34%;
+    --sidebar-primary: 142 72% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 94%;
+    --sidebar-accent-foreground: 220 18% 16%;
+    --sidebar-border: 220 14% 88%;
+    --sidebar-ring: 142 72% 40%;
+
+    --surface-0: 220 20% 98%;
+    --surface-1: 220 16% 97%;
+    --surface-2: 220 14% 95%;
+    --surface-3: 220 12% 92%;
+    --surface-glass: 0 0% 0% / 0.05;
+
+    --surface-0-border: 220 14% 90%;
+    --surface-1-border: 220 14% 88%;
+    --surface-2-border: 220 14% 84%;
+    --surface-3-border: 220 14% 80%;
+
+    --neon-green: 142 72% 40%;
+    --neon-cyan: 187 72% 38%;
+    --neon-violet: 270 48% 48%;
+    --neon-amber: 38 88% 44%;
+  }
+
+  /* Accent: primary + gradient token (--neon-green drives “brand” gradients) */
+  [data-accent="green"] {
+    --primary: 142 72% 50%;
+    --primary-foreground: 0 0% 2%;
+    --accent: 142 72% 50%;
+    --accent-foreground: 0 0% 2%;
+    --ring: 142 72% 50%;
+    --sidebar-primary: 142 72% 50%;
+    --sidebar-primary-foreground: 0 0% 2%;
+    --sidebar-ring: 142 72% 50%;
+    --neon-green: 142 72% 50%;
+    --neon-cyan: 142 72% 58%;
+  }
+
+  [data-accent="cyan"] {
+    --primary: 187 85% 50%;
+    --primary-foreground: 0 0% 4%;
+    --accent: 187 85% 50%;
+    --accent-foreground: 0 0% 4%;
+    --ring: 187 85% 50%;
+    --sidebar-primary: 187 85% 50%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-ring: 187 85% 50%;
+    --neon-green: 187 85% 53%;
+    --neon-cyan: 187 85% 60%;
+  }
+
+  [data-accent="violet"] {
+    --primary: 270 60% 58%;
+    --primary-foreground: 0 0% 98%;
+    --accent: 270 60% 58%;
+    --accent-foreground: 0 0% 98%;
+    --ring: 270 60% 58%;
+    --sidebar-primary: 270 60% 58%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-ring: 270 60% 58%;
+    --neon-green: 270 60% 60%;
+    --neon-cyan: 270 60% 68%;
+  }
+
+  [data-accent="amber"] {
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 2%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 2%;
+    --ring: 38 92% 50%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 0 0% 2%;
+    --sidebar-ring: 38 92% 50%;
+    --neon-green: 38 92% 50%;
+    --neon-cyan: 38 92% 58%;
+  }
+
+  /* Color-blind-safe accent (Okabe-Ito derived: blue + vermillion + yellow).
+     Verified to remain distinguishable under deuteranopia and tritanopia.
+     Primary = #0072B2 (sky blue), supports = #D55E00 (vermillion), #F0E442 (yellow). */
+  [data-accent="cb-safe"] {
+    --primary: 202 100% 35%;
+    --primary-foreground: 0 0% 100%;
+    --accent: 202 100% 35%;
+    --accent-foreground: 0 0% 100%;
+    --ring: 202 100% 35%;
+    --sidebar-primary: 202 100% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-ring: 202 100% 35%;
+    --neon-green: 202 100% 45%;   /* blue-leaning "green" slot */
+    --neon-cyan: 56 84% 60%;       /* yellow-leaning "cyan" slot */
+    --neon-violet: 27 100% 42%;    /* vermillion in the "violet" slot */
+    --neon-amber: 56 84% 60%;
+  }
+
+  /* Day + accent: slightly darker primaries for contrast on light surfaces */
+  [data-ui-theme="day"][data-accent="green"] {
+    --primary: 142 72% 40%;
+    --accent: 142 72% 40%;
+    --accent-foreground: 0 0% 100%;
+    --ring: 142 72% 40%;
+    --sidebar-primary: 142 72% 40%;
+    --sidebar-ring: 142 72% 40%;
+    --neon-green: 142 72% 40%;
+    --neon-cyan: 142 72% 48%;
+  }
+
+  [data-ui-theme="day"][data-accent="cyan"] {
+    --primary: 187 72% 38%;
+    --accent: 187 72% 38%;
+    --accent-foreground: 0 0% 100%;
+    --ring: 187 72% 38%;
+    --sidebar-primary: 187 72% 38%;
+    --sidebar-ring: 187 72% 38%;
+    --neon-green: 187 72% 40%;
+    --neon-cyan: 187 72% 48%;
+  }
+
+  [data-ui-theme="day"][data-accent="violet"] {
+    --primary: 270 48% 48%;
+    --accent: 270 48% 48%;
+    --accent-foreground: 0 0% 100%;
+    --ring: 270 48% 48%;
+    --sidebar-primary: 270 48% 48%;
+    --sidebar-ring: 270 48% 48%;
+    --neon-green: 270 48% 48%;
+    --neon-cyan: 270 48% 56%;
+  }
+
+  [data-ui-theme="day"][data-accent="amber"] {
+    --primary: 38 88% 44%;
+    --accent: 38 88% 44%;
+    --accent-foreground: 0 0% 100%;
+    --ring: 38 88% 44%;
+    --sidebar-primary: 38 88% 44%;
+    --sidebar-ring: 38 88% 44%;
+    --neon-green: 38 88% 44%;
+    --neon-cyan: 38 88% 52%;
+  }
+
+  /* Day + color-blind-safe — push primary a touch darker so it stays AA on white. */
+  [data-ui-theme="day"][data-accent="cb-safe"] {
+    --primary: 202 100% 30%;
+    --accent: 202 100% 30%;
+    --accent-foreground: 0 0% 100%;
+    --ring: 202 100% 30%;
+    --sidebar-primary: 202 100% 30%;
+    --sidebar-ring: 202 100% 30%;
+    --neon-green: 202 100% 32%;
+    --neon-cyan: 56 76% 42%;
+    --neon-violet: 27 100% 36%;
+    --neon-amber: 56 76% 42%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+  
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(0 0% 20%);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(0 0% 30%);
+  }
+
+  [data-ui-theme="midnight"] ::-webkit-scrollbar-thumb {
+    background: hsl(226 18% 24%);
+  }
+  [data-ui-theme="midnight"] ::-webkit-scrollbar-thumb:hover {
+    background: hsl(226 18% 34%);
+  }
+
+  [data-ui-theme="oled"] ::-webkit-scrollbar-thumb {
+    background: hsl(0 0% 18%);
+  }
+  [data-ui-theme="oled"] ::-webkit-scrollbar-thumb:hover {
+    background: hsl(0 0% 28%);
+  }
+
+  [data-ui-theme="day"] ::-webkit-scrollbar-thumb {
+    background: hsl(220 14% 78%);
+  }
+  [data-ui-theme="day"] ::-webkit-scrollbar-thumb:hover {
+    background: hsl(220 14% 68%);
+  }
+}
+
+@layer components {
+  /** Main app content area — extra horizontal padding on large / ultra-wide desktops */
+  .app-shell-main {
+    @apply p-4 md:p-6 lg:p-8 xl:px-10 2xl:px-14;
+  }
+
+  /** Default library / list pages — scales up on xl / 2xl */
+  .app-page {
+    @apply mx-auto w-full max-w-[1200px] xl:max-w-[1380px] 2xl:max-w-[1536px];
+  }
+
+  .app-page-dashboard {
+    @apply mx-auto w-full max-w-[960px] xl:max-w-[1100px] 2xl:max-w-[1280px];
+  }
+
+  .app-page-settings {
+    @apply mx-auto w-full max-w-[900px] xl:max-w-[1100px] 2xl:max-w-[1200px];
+  }
+
+  .app-page-narrow {
+    @apply mx-auto w-full max-w-[720px] xl:max-w-[800px];
+  }
+
+  .app-page-medium {
+    @apply mx-auto w-full max-w-[800px] xl:max-w-[920px] 2xl:max-w-[1000px];
+  }
+
+  .app-page-cart {
+    @apply mx-auto w-full max-w-[1000px] xl:max-w-[1200px] 2xl:max-w-[1320px];
+  }
+
+  .app-page-doc {
+    @apply mx-auto w-full max-w-[640px] lg:max-w-[720px] xl:max-w-[760px];
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-[hsl(var(--surface-glass))] backdrop-blur-xl border border-white/[0.06];
+  }
+  .glass-strong {
+    @apply bg-[hsl(0_0%_100%/0.08)] backdrop-blur-2xl border border-white/[0.1];
+  }
+  .surface-0 {
+    @apply bg-[hsl(var(--surface-0))];
+  }
+  .surface-1 {
+    @apply bg-[hsl(var(--surface-1))];
+  }
+  .surface-2 {
+    @apply bg-[hsl(var(--surface-2))];
+  }
+  .surface-3 {
+    @apply bg-[hsl(var(--surface-3))];
+  }
+  /* Bordered variants — explicit opt-in so existing `.surface-1` usage stays
+     unchanged. Use these when you want the Linear/Vercel "elevation by border"
+     look without a shadow. */
+  .surface-0-bordered {
+    @apply bg-[hsl(var(--surface-0))] border border-[hsl(var(--surface-0-border))];
+  }
+  .surface-1-bordered {
+    @apply bg-[hsl(var(--surface-1))] border border-[hsl(var(--surface-1-border))];
+  }
+  .surface-2-bordered {
+    @apply bg-[hsl(var(--surface-2))] border border-[hsl(var(--surface-2-border))];
+  }
+  .surface-3-bordered {
+    @apply bg-[hsl(var(--surface-3))] border border-[hsl(var(--surface-3-border))];
+  }
+  /* Typography rhythm — semantic utilities driven by the `--text-*` scale. */
+  .text-display {
+    font-size: var(--text-3xl);
+    line-height: var(--leading-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .text-heading {
+    font-size: var(--text-xl);
+    line-height: var(--leading-heading);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .text-body {
+    font-size: var(--text-base);
+    line-height: var(--leading-body);
+    font-weight: 400;
+  }
+  .text-mono-sm {
+    font-family: theme('fontFamily.mono');
+    font-size: var(--text-sm);
+    line-height: var(--leading-mono);
+    font-weight: 500;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--neon-green))] to-[hsl(var(--neon-cyan))];
+  }
+  .glow-green {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.15), 0 0 60px hsl(var(--primary) / 0.05);
+  }
+  .glow-sm {
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.1);
+  }
+}
+
+/* Light theme: glass borders read on pale backgrounds */
+[data-ui-theme="day"] .glass {
+  border-color: rgb(0 0 0 / 0.08);
+}
+[data-ui-theme="day"] .glass-strong {
+  background: hsl(0 0% 0% / 0.04);
+  border-color: rgb(0 0 0 / 0.1);
+}

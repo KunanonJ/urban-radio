@@ -1,0 +1,43 @@
+{
+  "apphosting": [
+    {
+      "backendId": "urban-radio-web",
+      "rootDir": ".",
+      "ignore": [
+        "node_modules",
+        ".git",
+        ".next",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "playwright-report",
+        "test-results",
+        "coverage",
+        "*.local",
+        "e2e"
+      ]
+    }
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8455
+    },
+    "storage": {
+      "port": 9199
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
+  }
+}

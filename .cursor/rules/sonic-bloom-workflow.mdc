@@ -1,0 +1,33 @@
+---
+description: Sonic Bloom — workflow, verification, and scope for all work
+alwaysApply: true
+---
+
+# Sonic Bloom — work rules
+
+## Source of truth
+
+- **`AGENTS.md`** — stack, Cloudflare, auth flags, layout map, conventions. Read it when touching architecture or new areas.
+- **`docs/TEST-PLAN.md`** — what we test and how to recover when CI fails.
+
+## After substantive changes
+
+Run **`npm run verify`** (lint → Vitest → Playwright E2E → production build) before considering work done. Fix failures using the recovery table in `docs/TEST-PLAN.md`.
+
+| Task | Command |
+|------|---------|
+| Dev (port **3000**) | `npm run dev` |
+| Lint | `npm run lint` |
+| Unit tests | `npm test` |
+| E2E | `npm run test:e2e` |
+| Full gate | `npm run verify` |
+
+## Scope and assumptions
+
+- UI data is **mock / in-memory** unless you explicitly wire a real API (`src/lib/mock-data.ts`, `src/lib/store.ts`).
+- Do not assume real audio playback or OAuth unless implemented.
+- **`lovable-tagger`** is dev-only; do not rely on it for production behavior.
+
+## Documentation
+
+- Do **not** add new root-level markdown guides unless the user asks. Prefer updating **`AGENTS.md`** or **`docs/TEST-PLAN.md`** when project behavior or testing changes.

@@ -1,0 +1,25 @@
+version: '3.9'
+
+# Local Postgres for the Railway migration (Wave RM-α onwards).
+# See docs/RAILWAY-KICKOFF.md "Local dev setup" for the user-facing commands.
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: sonic-bloom-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sonic
+      POSTGRES_PASSWORD: sonic
+      POSTGRES_DB: sonic_bloom_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - sonic-bloom-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonic -d sonic_bloom_dev"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  sonic-bloom-pg:

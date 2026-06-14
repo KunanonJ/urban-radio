@@ -1,0 +1,29 @@
+# Cloudflare Pages + Pages Functions + D1 + R2 (100% Cloudflare stack).
+# https://developers.cloudflare.com/pages/functions/
+#
+# Deploy: `npm run deploy` uploads `out/` (Next static export) if present, else `dist/` (legacy Vite).
+# Default `next build` writes `.next/` only — configure static `out/` export or an adapter before Pages deploy.
+# Do NOT use `wrangler deploy` — that targets Workers and expects `main = "..."`, not this layout.
+#
+# Cloudflare Workers Builds: set Deploy command to `bun run deploy` (NOT `npx wrangler deploy`).
+
+# Must match Workers & Pages → project slug (run `npm run cf:pages:list` after `wrangler login`).
+name = "homeseeker"
+# Pages: do not set account_id here — wrangler pages deploy rejects it (use API token scope / linked project).
+compatibility_date = "2025-04-01"
+
+# Git-connected builds: set dashboard output to match your static folder (`out/` after export, or legacy `dist/`).
+pages_build_output_dir = "dist"
+
+# Create remote DB: npx wrangler d1 create sonic-bloom-db
+# Then paste the returned database_id below (or use --remote with wrangler CLI).
+[[d1_databases]]
+binding = "DB"
+database_name = "sonic-bloom-db"
+database_id = "00000000-0000-0000-0000-000000000001"
+migrations_dir = "migrations"
+
+# Create bucket: npx wrangler r2 bucket create sonic-bloom-media
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "sonic-bloom-media"
